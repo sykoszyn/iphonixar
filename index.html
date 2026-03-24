@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>iPhonixAr — iPhones Y Tecnologia Apple</title>
+<title>iPhonixAr — Tienda</title>
 <link rel="icon" type="image/x-icon" href="/favicon.ico"/>
 <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico"/>
 <link rel="apple-touch-icon" sizes="180x180" href="/favicon.ico"/>
@@ -74,7 +74,7 @@ button{font-family:inherit;cursor:pointer}
 
 /* ══ HERO ══ */
 #hero{
-  padding:100px 1.5rem 4rem;min-height:82vh;
+  padding:100px 1.5rem 5rem;min-height:100vh;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   text-align:center;position:relative;overflow:hidden;
   background:radial-gradient(ellipse 80% 55% at 50% 0%,rgba(26,35,64,.9) 0%,rgba(14,21,37,.95) 60%,#0e1525 100%);
@@ -86,7 +86,7 @@ button{font-family:inherit;cursor:pointer}
     linear-gradient(90deg,rgba(237,232,223,.04) 1px,transparent 1px);
   background-size:60px 60px;
 }
-.hero-body{position:relative;z-index:1;max-width:640px;animation:fadeUp .5s both}
+.hero-body{position:relative;z-index:1;max-width:680px;animation:fadeUp .5s both}
 .eyebrow{font-size:.6rem;font-weight:600;letter-spacing:.28em;color:rgba(237,232,223,.4);margin-bottom:.9rem;text-transform:uppercase}
 h1{font-size:clamp(2rem,8vw,4.5rem);font-weight:900;letter-spacing:-.04em;line-height:1.02;margin-bottom:1.1rem}
 h1 span{color:rgba(237,232,223,.3)}
@@ -102,14 +102,42 @@ h1 span{color:rgba(237,232,223,.3)}
 .btn-w:active{transform:scale(.97)}
 .btn-ghost{display:inline-flex;align-items:center;justify-content:center;gap:.48rem;padding:.82rem 2rem;border-radius:999px;font-size:.9rem;background:transparent;border:1px solid rgba(237,232,223,.22);color:#ede8df;font-weight:500;transition:border-color .18s,background .18s}
 .btn-ghost:hover{border-color:rgba(237,232,223,.55);background:rgba(237,232,223,.06)}
-.iphone-mock{
-  width:122px;height:250px;margin-top:3rem;flex-shrink:0;
-  background:linear-gradient(145deg,#1e2d4e,#0d1627 52%,#1a2540);
-  border-radius:33px;border:2px solid rgba(255,255,255,.08);
-  box-shadow:0 54px 100px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.07);
-  display:flex;align-items:center;justify-content:center;position:relative;
+
+/* ── iPhones flotantes en el hero ── */
+.hero-phones{
+  position:relative;z-index:1;
+  display:flex;align-items:flex-end;justify-content:center;
+  gap:1.2rem;margin-top:3.5rem;
+  height:220px;
 }
-.inotch{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:50px;height:6px;background:#060d1a;border-radius:999px}
+.hero-phone{
+  border-radius:28px;overflow:hidden;
+  border:2px solid rgba(255,255,255,.1);
+  box-shadow:0 40px 80px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.08);
+  flex-shrink:0;
+}
+.hero-phone img{display:block;width:100%;height:100%;object-fit:cover;}
+.hp-left{width:100px;height:190px;transform:rotate(-6deg) translateY(10px);opacity:.7;}
+.hp-center{width:120px;height:220px;transform:rotate(0deg);opacity:1;z-index:2;
+  box-shadow:0 50px 100px rgba(0,0,0,.85),0 0 0 1px rgba(255,255,255,.12),inset 0 1px 0 rgba(255,255,255,.1);}
+.hp-right{width:100px;height:190px;transform:rotate(6deg) translateY(10px);opacity:.7;}
+@keyframes floatPhone{0%,100%{transform:rotate(0deg) translateY(0)}50%{transform:rotate(0deg) translateY(-8px)}}
+.hp-center{animation:floatPhone 4s ease-in-out infinite;}
+
+/* scroll hint */
+.scroll-hint{
+  position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:.4rem;
+  color:rgba(237,232,223,.2);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;
+  animation:pulse 2s infinite;
+}
+.scroll-hint svg{animation:fadeUp .5s 1s both;}
+
+@media(max-width:480px){
+  .hp-left,.hp-right{display:none;}
+  .hp-center{width:110px;height:200px;}
+  .hero-phones{height:200px;margin-top:2.5rem;}
+}
 
 /* ══ CATÁLOGO ══ */
 #catalogo{max-width:1240px;margin:0 auto;padding:4rem 1.25rem 7rem;background:linear-gradient(180deg,#0e1525 0%,#0b1220 100%)}
@@ -648,7 +676,7 @@ footer{border-top:1px solid rgba(237,232,223,.08);padding:2.5rem 1.25rem;text-al
 <!-- ══ NAVBAR ══ -->
 <nav id="nav">
   <div class="nav-in">
-    <a href="#Hero" class="logo">
+    <a href="#hero" class="logo">
       <svg width="25" height="25" fill="currentColor"><use href="#ico-apple"/></svg>
       iPhonix<em>Ar</em>
     </a>
@@ -691,20 +719,37 @@ footer{border-top:1px solid rgba(237,232,223,.08);padding:2.5rem 1.25rem;text-al
     <p class="hero-sub">Equipos sellados y usados certificados,<br/>fundas y accesorios. Envíos a todo el país.</p>
     <div id="hero-badge" class="loading">Obteniendo cotización USDT…</div>
     <div class="hero-cta">
-      <a href="#catalogo" class="btn-w">Ver catálogo</a>
+      <a href="#catalogo" class="btn-w">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+        Ver catálogo
+      </a>
       <button class="btn-ghost" onclick="openCanje()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16V4m0 0L3 8m4-4 4 4"/><path d="M17 8v12m0 0 4-4m-4 4-4-4"/></svg>
         Plan Canje
       </button>
       <a href="https://wa.me/5492235395949" target="_blank" class="btn-ghost">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
-        Consultar por WhatsApp
+        WhatsApp
       </a>
     </div>
   </div>
-  <div class="iphone-mock">
-    <div class="inotch"></div>
-    <svg width="28" height="28" fill="rgba(255,255,255,.14)"><use href="#ico-apple"/></svg>
+
+  <!-- iPhones flotantes -->
+  <div class="hero-phones">
+    <div class="hero-phone hp-left">
+      <img src="https://www.apple.com/v/iphone-16-pro/f/images/specs/finish-iphone-16-pro-desert-titanium__fktk0p2kl9sy_large.jpg" alt="iPhone 16 Pro Desert Titanium" loading="lazy"/>
+    </div>
+    <div class="hero-phone hp-center">
+      <img src="https://www.apple.com/v/iphone-16-pro/f/images/specs/finish-iphone-16-pro-black-titanium__e5gc4iyvrrqm_large.jpg" alt="iPhone 16 Pro Black Titanium" loading="lazy"/>
+    </div>
+    <div class="hero-phone hp-right">
+      <img src="https://www.apple.com/v/iphone-16-pro/f/images/specs/finish-iphone-16-pro-white-titanium__e3ox9yd5e0ma_large.jpg" alt="iPhone 16 Pro White Titanium" loading="lazy"/>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <span>Ver productos</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
   </div>
 </section>
 
@@ -715,8 +760,7 @@ footer{border-top:1px solid rgba(237,232,223,.08);padding:2.5rem 1.25rem;text-al
     <p class="cat-count" id="pcount">— productos disponibles</p>
   </div>
   <div class="filters" id="filters">
-    <button class="pill on" data-f="Todos">Todos</button>
-    <button class="pill" data-f="Sellados">Equipos Sellados</button>
+    <button class="pill on" data-f="Sellados">Equipos Sellados</button>
     <button class="pill" data-f="Usados">Equipos Usados</button>
     <button class="pill" data-f="Fundas">Fundas</button>
     <button class="pill" data-f="Cargadores">Cargadores</button>
@@ -1019,7 +1063,7 @@ PRODS.forEach(p => { photoIdx[String(p.id)] = 0; });
 // ── Estado ────────────────────────────────────────────────────
 let dolar     = null;
 let dolarPrev = null;
-let filtro    = 'Todos';
+let filtro    = 'Sellados';
 let carrito   = [];
 let toastTmr  = null;
 let modalProd = null;
