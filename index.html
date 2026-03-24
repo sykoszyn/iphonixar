@@ -1,0 +1,1871 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>iPhonixAr — Tienda</title>
+<link rel="icon" type="image/x-icon" href="/favicon.ico"/>
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico"/>
+<link rel="apple-touch-icon" sizes="180x180" href="/favicon.ico"/>
+<meta name="theme-color" content="#0e1525"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:#0e1525;color:#ede8df;min-height:100vh;
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  overflow-x:hidden;
+}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer}
+
+/* scrollbar */
+.sc::-webkit-scrollbar{display:none}
+.sc{-ms-overflow-style:none;scrollbar-width:none}
+
+/* animations */
+@keyframes fadeUp  {from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes slideIn {from{transform:translateX(100%)}to{transform:none}}
+@keyframes toastIn {from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes tickPop {0%,100%{transform:scale(1)}45%{transform:scale(1.15)}}
+@keyframes pulse   {0%,100%{opacity:.3}50%{opacity:.8}}
+@keyframes imgFade {from{opacity:0}to{opacity:1}}
+
+/* ══ NAVBAR ══ */
+#nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  background:rgba(10,17,35,.95);backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(237,232,223,.08);
+}
+.nav-in{
+  max-width:1240px;margin:0 auto;padding:0 1.25rem;
+  height:54px;display:flex;align-items:center;justify-content:space-between;gap:.75rem;
+}
+.logo{display:flex;align-items:center;gap:.45rem;font-weight:700;font-size:1.05rem;letter-spacing:-.025em}
+.logo em{color:rgba(237,232,223,.35);font-style:normal}
+
+/* ticker */
+.ticker{
+  display:flex;align-items:center;gap:.38rem;
+  background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.2);
+  border-radius:999px;padding:.26rem .8rem;flex-shrink:0;
+}
+.t-lbl{font-size:.65rem;color:rgba(52,211,153,.7);font-weight:600;letter-spacing:.06em}
+#t-price{font-size:.8rem;font-weight:700;color:#ede8df;transition:color .4s}
+#t-price.up{animation:tickPop .35s;color:#34d399}
+#t-price.down{animation:tickPop .35s;color:#f87171}
+#t-arrow{font-size:.56rem;line-height:1}
+
+.nav-r{display:flex;align-items:center;gap:.5rem}
+.ico{color:rgba(237,232,223,.42);display:flex;transition:color .15s;padding:.2rem}
+.ico:hover{color:#ede8df}
+.cart-btn{
+  position:relative;background:rgba(237,232,223,.1);border:1px solid rgba(237,232,223,.18);
+  color:#ede8df;padding:.5rem;display:flex;border-radius:10px;
+  transition:background .15s;
+}
+.cart-btn:hover{background:rgba(237,232,223,.18)}
+.cbadge{
+  position:absolute;top:-2px;right:-2px;
+  background:#ede8df;color:#0e1525;border-radius:999px;
+  font-size:.55rem;font-weight:800;
+  width:15px;height:15px;display:none;align-items:center;justify-content:center;
+}
+
+/* ══ HERO ══ */
+#hero{
+  padding:100px 1.5rem 4rem;min-height:82vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;position:relative;overflow:hidden;
+  background:radial-gradient(ellipse 80% 55% at 50% 0%,rgba(26,35,64,.9) 0%,rgba(14,21,37,.95) 60%,#0e1525 100%);
+}
+.grid-bg{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(237,232,223,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(237,232,223,.04) 1px,transparent 1px);
+  background-size:60px 60px;
+}
+.hero-body{position:relative;z-index:1;max-width:640px;animation:fadeUp .5s both}
+.eyebrow{font-size:.6rem;font-weight:600;letter-spacing:.28em;color:rgba(237,232,223,.4);margin-bottom:.9rem;text-transform:uppercase}
+h1{font-size:clamp(2rem,8vw,4.5rem);font-weight:900;letter-spacing:-.04em;line-height:1.02;margin-bottom:1.1rem}
+h1 span{color:rgba(237,232,223,.3)}
+.hero-sub{font-size:clamp(.86rem,2.5vw,1.06rem);color:rgba(237,232,223,.5);font-weight:300;line-height:1.65;margin-bottom:2rem}
+#hero-badge{display:inline-flex;align-items:center;gap:.48rem;border-radius:999px;padding:.4rem 1rem;font-size:.78rem;margin-bottom:2rem}
+#hero-badge.loading{background:rgba(237,232,223,.04);border:1px solid rgba(237,232,223,.1);color:rgba(237,232,223,.35);animation:pulse 1.6s infinite}
+#hero-badge.ok{background:rgba(237,232,223,.08);border:1px solid rgba(237,232,223,.2)}
+#hero-badge .hval{color:#34d399;font-weight:700}
+#hero-badge .hsrc{font-size:.6rem;color:rgba(237,232,223,.3)}
+.hero-cta{display:flex;gap:1rem;justify-content:center;align-items:center;flex-wrap:wrap;width:100%;text-align:center}
+.btn-w{background:#ede8df;color:#0e1525;border:none;font-weight:600;padding:.82rem 2rem;border-radius:999px;font-size:.9rem;transition:background .14s,transform .1s;display:inline-flex;align-items:center;gap:.45rem}
+.btn-w:hover{background:#d8d2c8}
+.btn-w:active{transform:scale(.97)}
+.btn-ghost{display:inline-flex;align-items:center;justify-content:center;gap:.48rem;padding:.82rem 2rem;border-radius:999px;font-size:.9rem;background:transparent;border:1px solid rgba(237,232,223,.22);color:#ede8df;font-weight:500;transition:border-color .18s,background .18s}
+.btn-ghost:hover{border-color:rgba(237,232,223,.55);background:rgba(237,232,223,.06)}
+.iphone-mock{
+  width:122px;height:250px;margin-top:3rem;flex-shrink:0;
+  background:linear-gradient(145deg,#1e2d4e,#0d1627 52%,#1a2540);
+  border-radius:33px;border:2px solid rgba(255,255,255,.08);
+  box-shadow:0 54px 100px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.07);
+  display:flex;align-items:center;justify-content:center;position:relative;
+}
+.inotch{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:50px;height:6px;background:#060d1a;border-radius:999px}
+
+/* ══ CATÁLOGO ══ */
+#catalogo{max-width:1240px;margin:0 auto;padding:4rem 1.25rem 7rem;background:linear-gradient(180deg,#0e1525 0%,#0b1220 100%)}
+.cat-head{margin-bottom:2rem}
+.cat-head h2{font-size:clamp(1.4rem,4vw,1.9rem);font-weight:800;letter-spacing:-.03em}
+.cat-count{color:rgba(237,232,223,.35);font-size:.8rem;margin-top:.28rem}
+
+/* filtros — pills simples, todos iguales */
+.filters{display:flex;flex-wrap:wrap;gap:.42rem;margin-bottom:2rem}
+.pill{
+  border:1px solid rgba(237,232,223,.15);background:transparent;color:rgba(237,232,223,.45);
+  font-size:.72rem;font-weight:500;letter-spacing:.06em;
+  border-radius:999px;padding:.4rem .95rem;transition:all .15s;white-space:nowrap;
+}
+.pill:hover{border-color:rgba(237,232,223,.4);color:#ede8df}
+.pill.on{background:#ede8df;color:#0e1525;border-color:#ede8df}
+
+/* ══ GRID ══ */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,238px),1fr));gap:1rem}
+.no-results{grid-column:1/-1;text-align:center;padding:5rem 1rem;color:rgba(237,232,223,.25);font-size:.88rem}
+
+/* ══ CARD ══ */
+.card{
+  background:#162040;border:1px solid rgba(237,232,223,.09);
+  border-radius:20px;overflow:hidden;display:flex;flex-direction:column;
+  transition:transform .22s cubic-bezier(.22,1,.36,1),box-shadow .22s;
+}
+.card:hover{transform:translateY(-3px);box-shadow:0 18px 50px rgba(5,10,25,.8),0 0 0 1px rgba(237,232,223,.12)}
+
+/* ── Carrusel de fotos en la card ── */
+.card-gallery{
+  position:relative;
+  width:100%;
+  aspect-ratio:1/1;
+  background:#0d1627;
+  overflow:hidden;
+  flex-shrink:0;
+}
+/* el track ya no se usa para mover — cada slide es absoluto */
+.gallery-track{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+}
+.gallery-slide{
+  position:absolute;
+  top:10px;left:10px;right:10px;bottom:10px; /* borde fijo 10px en todos los lados */
+  display:flex;align-items:center;justify-content:center;
+  background:#0d1627;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .22s ease;
+}
+.gallery-slide.active{
+  opacity:1;
+  pointer-events:auto;
+}
+.gallery-slide img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+}
+.gallery-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;color:rgba(237,232,223,.12)}
+.gallery-placeholder span{font-size:.58rem;letter-spacing:.1em;text-transform:uppercase}
+
+/* flechas de la card */
+.gal-arrow{
+  position:absolute;top:50%;transform:translateY(-50%);
+  background:rgba(0,0,0,.55);border:none;color:#fff;
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.75rem;z-index:10;opacity:0;transition:opacity .18s;
+}
+.card-gallery:hover .gal-arrow{opacity:1}
+.gal-arrow.prev{left:7px}
+.gal-arrow.next{right:7px}
+.gal-arrow:hover{background:rgba(0,0,0,.8)}
+
+/* dots */
+.gal-dots{
+  position:absolute;bottom:7px;left:50%;transform:translateX(-50%);
+  display:flex;gap:4px;
+}
+.gal-dot{
+  width:5px;height:5px;border-radius:50%;
+  background:rgba(237,232,223,.3);border:none;padding:0;transition:background .15s,transform .15s;
+}
+.gal-dot.on{background:#ede8df;transform:scale(1.25)}
+
+/* badges */
+.badge-new,.badge-used,.badge-last{position:absolute;padding:.2rem .56rem;border-radius:999px;font-size:.56rem;font-weight:700;letter-spacing:.1em;z-index:5}
+.badge-new {top:9px;left:9px;background:#ede8df;color:#0e1525}
+.badge-used{top:9px;left:9px;background:#1a2540;color:#ede8df;border:1px solid rgba(237,232,223,.2)}
+.badge-last{top:9px;right:9px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#f87171}
+
+/* card body */
+.card-body{padding:.95rem;flex:1;display:flex;flex-direction:column;gap:.4rem}
+.card-name{font-size:.85rem;font-weight:600;line-height:1.35;letter-spacing:-.01em;color:#ede8df}
+.card-desc{font-size:.73rem;color:rgba(237,232,223,.4);line-height:1.5}
+.card-price{margin-top:auto;padding-top:.62rem;border-top:1px solid rgba(237,232,223,.08)}
+/* ARS es el precio principal — grande */
+.p-ars-main{font-size:1.15rem;font-weight:900;letter-spacing:-.03em;color:#ede8df;line-height:1}
+/* USDT secundario — chico abajo */
+.p-usdt-sub{display:flex;align-items:center;gap:.25rem;font-size:.72rem;font-weight:600;color:rgba(148,189,255,.85);margin-top:.25rem}
+.p-loading{font-size:.78rem;font-weight:900;letter-spacing:-.02em;color:rgba(255,255,255,.2);animation:pulse 1.6s infinite}
+/* clases viejas — mantener por compatibilidad con carrito */
+.p-usdt{display:flex;align-items:center;gap:.28rem;font-size:.98rem;font-weight:800;letter-spacing:-.02em}
+.p-ars{font-size:.72rem;color:rgba(255,255,255,.34);margin-top:.12rem}
+.btn-add{
+  margin-top:.6rem;width:100%;padding:.62rem;font-size:.79rem;
+  background:#ede8df;color:#0e1525;border:none;font-weight:600;border-radius:12px;
+  transition:background .14s,transform .1s;
+}
+.btn-add:hover{background:#d8d2c8}
+.btn-add:active{transform:scale(.97)}
+
+/* ══ MODAL DETALLE ══ */
+#modal-overlay{
+  display:none;position:fixed;inset:0;background:rgba(8,14,28,.92);
+  z-index:300;align-items:center;justify-content:center;padding:1rem;
+  -webkit-overflow-scrolling:touch;
+}
+#modal-overlay.show{display:flex}
+#modal-box{
+  background:#162040;border:1px solid rgba(237,232,223,.1);border-radius:22px;
+  width:min(900px,100%);max-height:90vh;overflow-y:auto;
+  display:flex;flex-wrap:wrap;
+  transform:translateZ(0);-webkit-transform:translateZ(0);
+}
+.modal-gallery{
+  width:min(400px,100%);flex:1 1 300px;
+  position:relative;background:#0d1627;border-radius:22px 0 0 22px;overflow:hidden;
+  min-height:320px;display:flex;align-items:center;justify-content:center;
+}
+@media(max-width:600px){
+  #modal-box{flex-direction:column}
+  .modal-gallery{border-radius:22px 22px 0 0;min-height:260px;width:100%}
+}
+.modal-track{display:flex;width:100%;height:100%;transition:transform .25s cubic-bezier(.22,1,.36,1);position:absolute;top:0;left:0;will-change:transform}
+.modal-slide{min-width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+.modal-slide img{width:100%;height:100%;object-fit:contain;padding:.75rem;background:#0d1627}
+.modal-placeholder{color:rgba(237,232,223,.12);display:flex;flex-direction:column;align-items:center;gap:.6rem}
+.modal-arrow{
+  position:absolute;top:50%;transform:translateY(-50%);
+  background:rgba(0,0,0,.6);border:none;color:#fff;
+  width:34px;height:34px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:.8rem;z-index:10;
+  transition:background .15s;
+}
+.modal-arrow:hover{background:rgba(0,0,0,.85)}
+.modal-arrow.prev{left:10px}
+.modal-arrow.next{right:10px}
+.modal-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px}
+.modal-dot{width:6px;height:6px;border-radius:50%;background:rgba(237,232,223,.28);border:none;padding:0;transition:background .15s,transform .15s}
+.modal-dot.on{background:#ede8df;transform:scale(1.3)}
+.modal-thumbs{
+  display:flex;gap:.5rem;position:absolute;bottom:48px;left:50%;transform:translateX(-50%);
+  max-width:90%;overflow-x:auto;padding:.3rem;
+}
+.modal-thumbs::-webkit-scrollbar{display:none}
+.mthumb{
+  width:44px;height:44px;border-radius:8px;overflow:hidden;flex-shrink:0;
+  border:2px solid transparent;transition:border-color .15s;cursor:pointer;background:#0d1627;
+}
+.mthumb.on{border-color:#ede8df}
+.mthumb img{width:100%;height:100%;object-fit:cover}
+
+.modal-info{flex:1 1 280px;padding:1.75rem;display:flex;flex-direction:column;gap:.6rem;-webkit-overflow-scrolling:touch}
+.modal-close{
+  align-self:flex-end;background:rgba(237,232,223,.08);border:none;color:#ede8df;
+  width:30px;height:30px;border-radius:50%;font-size:.9rem;
+  display:flex;align-items:center;justify-content:center;transition:background .15s;
+}
+.modal-close:hover{background:rgba(237,232,223,.15)}
+.modal-name{font-size:1.15rem;font-weight:700;letter-spacing:-.02em;line-height:1.3;color:#ede8df}
+.modal-badge{display:inline-flex;align-items:center;gap:.35rem}
+.modal-desc{font-size:.82rem;color:rgba(237,232,223,.5);line-height:1.6}
+.modal-model{font-size:.72rem;color:rgba(237,232,223,.35);display:flex;align-items:center;gap:.35rem}
+.modal-price-usdt{display:flex;align-items:center;gap:.35rem;font-size:1.3rem;font-weight:800;margin-top:.4rem}
+.modal-price-ars{font-size:.85rem;color:rgba(255,255,255,.38);margin-top:.1rem}
+.modal-stock{font-size:.72rem;color:rgba(237,232,223,.4);padding:.28rem .75rem;background:rgba(237,232,223,.06);border-radius:999px;display:inline-block;margin-top:.2rem}
+.modal-add{
+  margin-top:auto;width:100%;padding:.9rem;font-size:.9rem;
+  background:#ede8df;color:#0e1525;border:none;font-weight:700;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;gap:.5rem;
+  transition:background .14s,transform .1s;
+}
+.modal-add:hover{background:#d8d2c8}
+.modal-add:active{transform:scale(.97)}
+
+/* ══ FOOTER ══ */
+footer{border-top:1px solid rgba(237,232,223,.08);padding:2.5rem 1.25rem;text-align:center;color:rgba(237,232,223,.28);font-size:.74rem}
+.ft-links{display:flex;justify-content:center;gap:1.5rem;margin-bottom:1.1rem;flex-wrap:wrap}
+.ft-link{color:rgba(237,232,223,.35);display:flex;align-items:center;gap:.36rem;font-size:.74rem;transition:color .15s}
+.ft-link:hover{color:#ede8df}
+
+/* ══ CARRITO ══ */
+#ov{display:none;position:fixed;inset:0;background:rgba(8,14,28,.88);z-index:110}
+#ov.show{display:block}
+#cart{
+  position:fixed;top:0;right:0;bottom:0;width:min(400px,100vw);
+  background:#0d1525;border-left:1px solid rgba(237,232,223,.1);
+  z-index:120;display:flex;flex-direction:column;
+  transform:translateX(100%);transition:transform .3s cubic-bezier(.22,1,.36,1);
+}
+#cart.open{transform:none}
+.ch{padding:1.1rem 1.35rem;border-bottom:1px solid rgba(237,232,223,.08);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#0d1525;z-index:1}
+.ch h3{font-weight:700;font-size:.96rem}
+.ch-sub{font-size:.65rem;color:rgba(237,232,223,.32);margin-top:.1rem}
+.cx{background:none;border:none;color:rgba(237,232,223,.4);font-size:1.15rem;line-height:1}
+.cx:hover{color:#ede8df}
+.citems{flex:1;padding:1rem 1.2rem;display:flex;flex-direction:column;gap:.72rem;overflow-y:auto}
+.cempty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(237,232,223,.25);gap:1rem;padding:3rem 0;font-size:.84rem}
+.citem{display:flex;gap:.75rem;padding:.8rem;background:#1a2540;border-radius:13px;border:1px solid rgba(237,232,223,.08)}
+.cthumb{width:44px;height:44px;border-radius:8px;background:#0d1627;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;color:rgba(237,232,223,.18)}
+.cthumb img{width:100%;height:100%;object-fit:contain;padding:2px;background:#0d1627}
+.cinfo{flex:1;min-width:0}
+.cname{font-size:.78rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cunit{display:flex;align-items:center;gap:.2rem;font-size:.69rem;color:rgba(148,189,255,.85);font-weight:600;margin-top:.15rem}
+.crow{display:flex;align-items:center;justify-content:space-between;margin-top:.48rem}
+.qty{display:flex;align-items:center;gap:.38rem}
+.qb{background:rgba(237,232,223,.08);border:none;color:#ede8df;border-radius:7px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:.85rem}
+.qb:hover{background:rgba(237,232,223,.15)}
+.qv{font-size:.8rem;font-weight:700;min-width:14px;text-align:center}
+.csub{text-align:right}
+.csub-usdt{display:flex;align-items:center;gap:.2rem;justify-content:flex-end;font-size:.79rem;font-weight:800}
+.csub-ars{font-size:.65rem;color:rgba(237,232,223,.32);margin-top:.06rem}
+.cdel{background:none;border:none;color:rgba(237,232,223,.25);font-size:.64rem;margin-top:.15rem;padding:0;display:block}
+.cdel:hover{color:#f87171}
+.cfoot{padding:1.15rem 1.35rem;border-top:1px solid rgba(237,232,223,.08);position:sticky;bottom:0;background:#0d1525}
+.ctrow{display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem}
+.ctlbl{font-size:.82rem;color:rgba(237,232,223,.45)}
+.ctval{display:flex;align-items:center;gap:.28rem;font-size:.93rem;font-weight:800}
+.ctars{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.1rem;font-size:.78rem;color:rgba(237,232,223,.38)}
+.cchk{
+  width:100%;padding:.95rem;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;gap:.48rem;
+  font-size:.9rem;background:#ede8df;color:#0e1525;border:none;font-weight:700;
+  transition:background .14s,transform .1s;
+}
+.cchk:hover{background:#d8d2c8}
+.cchk:active{transform:scale(.97)}
+.chint{text-align:center;font-size:.64rem;color:rgba(237,232,223,.2);margin-top:.6rem}
+#btn-vaciar{
+  display:none;font-size:.65rem;font-weight:600;font-family:inherit;
+  color:rgba(248,113,113,.75);letter-spacing:.04em;
+  padding:.32rem .7rem;border-radius:8px;
+  border:1px solid rgba(248,113,113,.25);
+  background:rgba(248,113,113,.08);cursor:pointer;transition:all .15s;
+}
+#btn-vaciar:hover{color:#f87171;border-color:rgba(248,113,113,.55);background:rgba(248,113,113,.15)}
+#btn-vaciar.visible{display:block}
+
+/* toast */
+#toast{
+  position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);
+  background:rgba(26,36,64,.97);
+  border:1px solid rgba(237,232,223,.2);border-radius:999px;
+  padding:.5rem 1.15rem;font-size:.78rem;font-weight:500;color:#ede8df;
+  white-space:nowrap;z-index:400;box-shadow:0 8px 28px rgba(0,0,0,.5);
+  display:none;
+}
+#toast.show{display:block;animation:toastIn .26s cubic-bezier(.22,1,.36,1)}
+
+/* ══ BUSCADOR USADOS ══ */
+#search-wrap{
+  display:none;margin-bottom:1.5rem;
+  animation:fadeUp .3s both;
+  position:relative;   /* necesario para que el dropdown se posicione respecto a este */
+  z-index:90;          /* encima de las cards y de cualquier otro elemento */
+}
+#search-wrap.show{ display:block; }
+.search-box{
+  position:relative;display:flex;align-items:center;
+  background:#1a2540;border:1px solid rgba(237,232,223,.14);
+  border-radius:14px;
+  /* SIN overflow:hidden — eso cortaba el dropdown */
+  transition:border-color .2s;
+}
+.search-box:focus-within{ border-color:rgba(237,232,223,.4); }
+.search-icon{
+  position:absolute;left:14px;color:rgba(237,232,223,.35);
+  display:flex;align-items:center;pointer-events:none;
+  z-index:1;
+}
+#search-input{
+  width:100%;background:transparent;border:none;outline:none;
+  color:#ede8df;font-family:inherit;font-size:.9rem;font-weight:400;
+  padding:.85rem 2.75rem .85rem 2.75rem;
+  caret-color:#fff;border-radius:14px;
+}
+#search-input::placeholder{ color:rgba(237,232,223,.3); }
+#search-clear{
+  position:absolute;right:12px;background:none;border:none;
+  color:rgba(237,232,223,.35);font-size:1rem;line-height:1;
+  display:none;padding:.2rem;transition:color .15s;z-index:1;
+}
+#search-clear:hover{ color:#ede8df; }
+#search-clear.show{ display:block; }
+
+/* sugerencias autocomplete — flotan ENCIMA de todo */
+#search-suggestions{
+  position:absolute;top:calc(100% + 6px);left:0;right:0;
+  background:#1a2540;border:1px solid rgba(237,232,223,.15);
+  border-radius:14px;
+  z-index:999;          /* máximo — encima de cards, modales parciales, etc */
+  box-shadow:0 24px 60px rgba(0,0,0,.85), 0 0 0 1px rgba(255,255,255,.05);
+  overflow:hidden;display:none;
+  max-height:380px;overflow-y:auto;
+}
+#search-suggestions.show{ display:block; }
+.sug-item{
+  width:100%;text-align:left;background:transparent;border:none;
+  font-family:inherit;font-size:.82rem;color:rgba(237,232,223,.7);
+  padding:.65rem 1rem;display:flex;align-items:center;gap:.6rem;
+  transition:background .12s;cursor:pointer;
+}
+.sug-item:hover,.sug-item.focused{ background:rgba(237,232,223,.08);color:#ede8df; }
+.sug-item .sug-stock{
+  margin-left:auto;font-size:.68rem;font-weight:600;
+  padding:.15rem .5rem;border-radius:999px;
+}
+.sug-item .sug-stock.ok{ background:rgba(52,211,153,.12);color:#34d399; }
+.sug-item .sug-stock.low{ background:rgba(251,191,36,.1);color:#fbbf24; }
+.sug-item .sug-stock.out{ background:rgba(239,68,68,.1);color:#f87171; }
+.sug-sep{ height:1px;background:rgba(237,232,223,.08);margin:.2rem 0; }
+.sug-heading{
+  font-size:.62rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(237,232,223,.35);padding:.5rem 1rem .25rem;
+}
+
+/* highlight del card al hacer scroll-to */
+@keyframes cardHighlight {
+  0%   { box-shadow:0 0 0 3px rgba(255,255,255,.6), 0 18px 45px rgba(0,0,0,.6); }
+  70%  { box-shadow:0 0 0 3px rgba(255,255,255,.2), 0 18px 45px rgba(0,0,0,.6); }
+  100% { box-shadow:none; }
+}
+.card.highlight{ animation:cardHighlight 1.8s ease forwards; }
+
+
+/* ══ BATERÍA BADGE ══ */
+.bat-badge{
+  position:absolute;bottom:9px;left:9px;z-index:5;
+  display:flex;align-items:center;gap:.32rem;
+  background:rgba(0,0,0,.75);
+  border-radius:999px;padding:.22rem .58rem;
+  font-size:.68rem;font-weight:700;letter-spacing:.02em;
+  border:1px solid rgba(255,255,255,.1);
+}
+.bat-bar{
+  width:18px;height:9px;border-radius:2.5px;
+  border:1.5px solid rgba(255,255,255,.55);
+  position:relative;overflow:hidden;display:inline-block;flex-shrink:0;
+}
+.bat-bar::after{
+  content:'';position:absolute;top:50%;right:-3.5px;transform:translateY(-50%);
+  width:2.5px;height:5px;background:rgba(255,255,255,.55);border-radius:0 1px 1px 0;
+}
+.bat-fill{
+  position:absolute;top:1.5px;left:1.5px;bottom:1.5px;
+  border-radius:1.5px;transition:width .3s;
+}
+.bat-high  .bat-fill{ background:#34d399; }
+.bat-mid   .bat-fill{ background:#fbbf24; }
+.bat-low   .bat-fill{ background:#f87171; }
+.bat-high{ color:#34d399; }
+.bat-mid { color:#fbbf24; }
+.bat-low { color:#f87171; }
+
+
+  display:none;position:absolute;top:calc(100% + 8px);right:0;
+  background:#1c1c1e;border:1px solid rgba(255,255,255,.15);
+  border-radius:14px;padding:1rem;z-index:300;width:240px;
+  box-shadow:0 16px 40px rgba(0,0,0,.8);
+  animation:fadeUp .2s both;
+}
+  flex:1;background:#111;border:1px solid rgba(255,255,255,.15);border-radius:9px;
+  color:#fff;font-family:inherit;font-size:.9rem;font-weight:700;
+  padding:.55rem .75rem;outline:none;width:100%;
+  transition:border-color .15s;
+}
+  background:#fff;color:#000;border:none;border-radius:9px;
+  font-family:inherit;font-weight:700;font-size:.8rem;
+  padding:.55rem .85rem;cursor:pointer;white-space:nowrap;
+  transition:background .14s;
+}
+
+
+/* ── Ticker editable (click para cambiar) ── */
+.ticker{ cursor:pointer; user-select:none; }
+.ticker:hover{ border-color:rgba(237,232,223,.35); }
+#ticker-popup{
+  display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);
+  background:#1a2540;border:1px solid rgba(237,232,223,.18);border-radius:14px;
+  padding:.85rem 1rem;z-index:500;width:220px;
+  box-shadow:0 16px 40px rgba(0,0,0,.8);
+  animation:fadeUp .18s both;
+}
+#ticker-popup.show{ display:block; }
+#ticker-popup label{ font-size:.68rem;color:rgba(237,232,223,.5);display:block;margin-bottom:.45rem; }
+#ticker-input-wrap{ display:flex;gap:.4rem; }
+#ticker-val-input{
+  flex:1;background:#0d1525;border:1px solid rgba(237,232,223,.18);border-radius:9px;
+  color:#ede8df;font-family:inherit;font-size:.9rem;font-weight:700;
+  padding:.45rem .65rem;outline:none;width:100%;
+}
+#ticker-val-input:focus{ border-color:rgba(237,232,223,.4); }
+#ticker-ok-btn{
+  background:#ede8df;color:#0e1525;border:none;border-radius:9px;
+  font-family:inherit;font-weight:700;font-size:.8rem;padding:.45rem .7rem;cursor:pointer;
+}
+#ticker-ok-btn:hover{ background:#d8d2c8; }
+
+/* ══ MODAL CANJE ══ */
+#canje-overlay{
+  display:none;position:fixed;inset:0;background:rgba(8,14,28,.9);
+  z-index:400;align-items:center;justify-content:center;padding:1rem;
+}
+#canje-overlay.show{ display:flex; }
+#canje-box{
+  background:#162040;border:1px solid rgba(237,232,223,.12);border-radius:22px;
+  width:min(480px,100%);max-height:90vh;overflow-y:auto;
+  padding:2rem 1.75rem;animation:fadeUp .3s both;position:relative;
+}
+#canje-box h2{ font-size:1.25rem;font-weight:800;letter-spacing:-.03em;color:#ede8df;margin-bottom:.35rem; }
+#canje-box .canje-sub{ font-size:.82rem;color:rgba(237,232,223,.48);margin-bottom:1.5rem;line-height:1.5; }
+.canje-notice{
+  background:rgba(237,232,223,.06);border:1px solid rgba(237,232,223,.12);
+  border-radius:12px;padding:.75rem 1rem;margin-bottom:1.5rem;
+  font-size:.78rem;color:rgba(237,232,223,.6);line-height:1.5;display:flex;gap:.6rem;align-items:flex-start;
+}
+.canje-notice span{ font-size:1rem;flex-shrink:0; }
+.canje-field{ margin-bottom:1rem; }
+.canje-field label{
+  display:block;font-size:.72rem;font-weight:600;letter-spacing:.06em;
+  color:rgba(237,232,223,.55);text-transform:uppercase;margin-bottom:.4rem;
+}
+.canje-field input,
+.canje-field select,
+.canje-field textarea{
+  width:100%;background:#0d1525;border:1px solid rgba(237,232,223,.15);
+  border-radius:10px;color:#ede8df;font-family:inherit;font-size:.88rem;
+  padding:.7rem .9rem;outline:none;transition:border-color .15s;
+}
+.canje-field input:focus,
+.canje-field select:focus,
+.canje-field textarea:focus{ border-color:rgba(237,232,223,.4); }
+.canje-field select{ appearance:none;cursor:pointer; }
+.canje-field select option{ background:#162040;color:#ede8df; }
+.canje-field textarea{ resize:vertical;min-height:80px; }
+.bat-row{ display:flex;align-items:center;gap:.75rem; }
+.bat-row input[type=range]{
+  flex:1;accent-color:#ede8df;cursor:pointer;
+  height:4px;border-radius:999px;
+  background:rgba(237,232,223,.15);border:none;padding:0;
+}
+#bat-display{
+  font-size:.9rem;font-weight:700;color:#ede8df;
+  min-width:44px;text-align:right;
+}
+.canje-radio-group{ display:flex;flex-wrap:wrap;gap:.45rem; }
+.canje-radio{
+  flex:1;min-width:calc(50% - .25rem);
+  border:1px solid rgba(237,232,223,.15);border-radius:10px;
+  padding:.6rem .75rem;cursor:pointer;transition:all .15s;
+  display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:rgba(237,232,223,.65);
+}
+.canje-radio:hover{ border-color:rgba(237,232,223,.35);color:#ede8df; }
+.canje-radio input[type=radio]{ accent-color:#ede8df;cursor:pointer;flex-shrink:0; }
+.canje-radio.sel{ border-color:#ede8df;color:#ede8df;background:rgba(237,232,223,.07); }
+.canje-submit{
+  width:100%;padding:.9rem;border-radius:14px;margin-top:1rem;
+  background:#ede8df;color:#0e1525;border:none;font-family:inherit;
+  font-weight:700;font-size:.92rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:.5rem;
+  transition:background .14s,transform .1s;
+}
+.canje-submit:hover{ background:#d8d2c8; }
+.canje-submit:active{ transform:scale(.97); }
+.canje-close{
+  position:absolute;top:1rem;right:1rem;
+  background:rgba(237,232,223,.08);border:none;color:#ede8df;
+  width:30px;height:30px;border-radius:50%;font-size:.9rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:background .15s;
+}
+.canje-close:hover{ background:rgba(237,232,223,.15); }
+
+
+/* ── Botón Plan Canje en card ── */
+.btn-canje{
+  width:100%;padding:.52rem;font-size:.75rem;font-weight:600;
+  background:transparent;color:rgba(237,232,223,.6);
+  border:1px solid rgba(237,232,223,.18);border-radius:12px;
+  display:flex;align-items:center;justify-content:center;gap:.4rem;
+  transition:all .15s;margin-top:.35rem;
+}
+.btn-canje:hover{
+  background:rgba(237,232,223,.08);
+  border-color:rgba(237,232,223,.35);
+  color:#ede8df;
+}
+
+
+/* Canje extras */
+.canje-section-title{
+  font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(237,232,223,.4);margin:1.1rem 0 .65rem;
+  padding-bottom:.45rem;border-bottom:1px solid rgba(237,232,223,.08);
+}
+.canje-row-2{ display:grid;grid-template-columns:1fr 1fr;gap:.75rem; }
+@media(max-width:400px){ .canje-row-2{ grid-template-columns:1fr; } }
+/* Aviso más compacto */
+.canje-notice{
+  background:rgba(237,232,223,.05);border:1px solid rgba(237,232,223,.1);
+  border-radius:10px;padding:.6rem .85rem;margin-bottom:1.1rem;
+  font-size:.76rem;color:rgba(237,232,223,.55);line-height:1.45;
+  display:flex;gap:.55rem;align-items:flex-start;
+}
+.canje-notice strong{ color:rgba(237,232,223,.8); }
+
+</style>
+</head>
+<body>
+
+<!-- SVG helpers -->
+<svg style="display:none">
+  <symbol id="ico-apple" viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+  <symbol id="ico-cart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+  <symbol id="ico-ig" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+  <symbol id="ico-tt" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V9.11a8.16 8.16 0 0 0 4.77 1.52V7.18a4.85 4.85 0 0 1-1-.49z"/></svg>
+  <symbol id="ico-wa" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+  <symbol id="ico-tether" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#26A17B"/><path d="M17.922 17.383v-.002c-.11.008-.677.042-1.942.042-1.01 0-1.721-.03-1.971-.042v.003c-3.888-.171-6.79-.848-6.79-1.658 0-.809 2.902-1.486 6.79-1.66v2.644c.254.018.982.061 1.988.061 1.207 0 1.812-.05 1.925-.06v-2.643c3.88.173 6.775.85 6.775 1.658 0 .81-2.895 1.485-6.775 1.657m0-3.59v-2.366h5.414V8.5H8.595v2.927h5.414v2.365c-4.4.202-7.709 1.074-7.709 2.126 0 1.053 3.309 1.924 7.709 2.126v7.605h3.913v-7.611c4.393-.202 7.694-1.073 7.694-2.12 0-1.046-3.301-1.917-7.694-2.125" fill="white"/></svg>
+</svg>
+
+<!-- ══ NAVBAR ══ -->
+<nav id="nav">
+  <div class="nav-in">
+    <a href="#hero" class="logo">
+      <svg width="25" height="25" fill="currentColor"><use href="#ico-apple"/></svg>
+      iPhonix<em>Ar</em>
+    </a>
+    <div style="position:relative">
+      <div class="ticker" onclick="toggleTickerPopup(event)" title="Click para editar cotización">
+        <span class="t-lbl">1 USD =</span>
+        <span id="t-price" style="font-size:.82rem;font-weight:700;color:rgba(52,211,153,.4);animation:pulse 1.6s infinite">···</span>
+        <span id="t-arrow"></span>
+      </div>
+      <div id="ticker-popup">
+        <label>Cotización dólar (ARS)</label>
+        <div id="ticker-input-wrap">
+          <input id="ticker-val-input" type="number" min="1" max="99999" placeholder="ej: 1460"/>
+          <button id="ticker-ok-btn" onclick="setDolarManual()">OK</button>
+        </div>
+      </div>
+    </div>
+    <div class="nav-r">
+      <a href="https://instagram.com/iphonixar" target="_blank" class="ico"><svg width="17" height="17" fill="currentColor"><use href="#ico-ig"/></svg></a>
+      <a href="https://tiktok.com/@iphonixar" target="_blank" class="ico"><svg width="17" height="17" fill="currentColor"><use href="#ico-tt"/></svg></a>
+      <button class="cart-btn" onclick="openCart()">
+        <!-- Bolsa de shopping — inline para evitar problemas de herencia de stroke -->
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ede8df" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+        <span class="cbadge" id="cbadge">0</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section id="hero">
+  <div class="grid-bg"></div>
+  <div class="hero-body">
+    <p class="eyebrow">Mar del Plata · Argentina</p>
+    <h1>iPhone premium.<br/><span>Sin vueltas.</span></h1>
+    <p class="hero-sub">Equipos sellados y usados certificados,<br/>fundas y accesorios. Envíos a todo el país.</p>
+    <div id="hero-badge" class="loading">Obteniendo cotización USDT…</div>
+    <div class="hero-cta">
+      <a href="#catalogo" class="btn-w">Ver catálogo</a>
+      <button class="btn-ghost" onclick="openCanje()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16V4m0 0L3 8m4-4 4 4"/><path d="M17 8v12m0 0 4-4m-4 4-4-4"/></svg>
+        Plan Canje
+      </button>
+      <a href="https://wa.me/5492235395949" target="_blank" class="btn-ghost">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+        Consultar por WhatsApp
+      </a>
+    </div>
+  </div>
+  <div class="iphone-mock">
+    <div class="inotch"></div>
+    <svg width="28" height="28" fill="rgba(255,255,255,.14)"><use href="#ico-apple"/></svg>
+  </div>
+</section>
+
+<!-- ══ CATÁLOGO ══ -->
+<section id="catalogo">
+  <div class="cat-head">
+    <h2>Catálogo</h2>
+    <p class="cat-count" id="pcount">— productos disponibles</p>
+  </div>
+  <div class="filters" id="filters">
+    <button class="pill on" data-f="Todos">Todos</button>
+    <button class="pill" data-f="Sellados">Equipos Sellados</button>
+    <button class="pill" data-f="Usados">Equipos Usados</button>
+    <button class="pill" data-f="Fundas">Fundas</button>
+    <button class="pill" data-f="Cargadores">Cargadores</button>
+  </div>
+  <div id="search-wrap">
+    <div style="position:relative">
+      <div class="search-box">
+        <span class="search-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </span>
+        <input id="search-input" type="text" placeholder="Buscá tu iPhone... ej: iPhone 14 Pro" autocomplete="off" spellcheck="false"/>
+        <button id="search-clear" onclick="clearSearch()">✕</button>
+      </div>
+      <div id="search-suggestions"></div>
+    </div>
+  </div>
+  <div class="grid" id="grid"></div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="ft-links">
+    <a href="https://instagram.com/iphonixar" target="_blank" class="ft-link"><svg width="14" height="14" fill="currentColor"><use href="#ico-ig"/></svg>@iphonixar</a>
+    <a href="https://tiktok.com/@iphonixar" target="_blank" class="ft-link"><svg width="14" height="14" fill="currentColor"><use href="#ico-tt"/></svg>@iphonixar</a>
+    <a href="https://wa.me/5492235395949" target="_blank" class="ft-link"><svg width="14" height="14" fill="currentColor"><use href="#ico-wa"/></svg>Contacto</a>
+  </div>
+  <p>© <span id="yr"></span> iPhonixAr · Mar del Plata, Argentina</p>
+  <p style="margin-top:.28rem;font-size:.66rem">Precios en USDT · Cotización ARS en tiempo real vía CriptoYa</p>
+</footer>
+
+<!-- ══ MODAL CANJE ══ -->
+<div id="canje-overlay" onclick="closeCanje(event)">
+  <div id="canje-box">
+    <button class="canje-close" onclick="closeCanje()">✕</button>
+
+    <h2>🔄 Plan Canje</h2>
+    <p class="canje-sub">Entregá tu iPhone en parte de pago y llevate el que querés.<br/>Completá el formulario y te contactamos.</p>
+
+    <!-- Aviso Apple — compacto y dentro del box -->
+    <div class="canje-notice"><svg width="13" height="13" fill="currentColor" style="flex-shrink:0"><use href="#ico-apple"/></svg> Solo aceptamos equipos Apple.</div>
+
+    <!-- Equipo que entrega -->
+    <div class="canje-section-title">Tu equipo actual</div>
+
+    <div class="canje-row-2">
+      <div class="canje-field">
+        <label>Modelo</label>
+        <select id="c-modelo">
+          <option value="">— Tu iPhone —</option>
+          <optgroup label="iPhone 17">
+            <option>iPhone 17 Pro Max</option><option>iPhone 17 Pro</option>
+            <option>iPhone 17 Air</option><option>iPhone 17</option>
+          </optgroup>
+          <optgroup label="iPhone 16">
+            <option>iPhone 16 Pro Max</option><option>iPhone 16 Pro</option><option>iPhone 16</option>
+          </optgroup>
+          <optgroup label="iPhone 15">
+            <option>iPhone 15 Pro Max</option><option>iPhone 15 Pro</option><option>iPhone 15</option>
+          </optgroup>
+          <optgroup label="iPhone 14">
+            <option>iPhone 14 Pro Max</option><option>iPhone 14 Pro</option><option>iPhone 14</option>
+          </optgroup>
+          <optgroup label="iPhone 13">
+            <option>iPhone 13 Pro Max</option><option>iPhone 13 Pro</option><option>iPhone 13</option>
+          </optgroup>
+          <optgroup label="iPhone 12">
+            <option>iPhone 12 Pro Max</option><option>iPhone 12 Pro</option><option>iPhone 12</option>
+          </optgroup>
+          <optgroup label="iPhone 11">
+            <option>iPhone 11 Pro Max</option><option>iPhone 11 Pro</option><option>iPhone 11</option>
+          </optgroup>
+          <optgroup label="Anteriores">
+            <option>iPhone XS Max</option><option>iPhone XS</option><option>iPhone XR</option>
+            <option>iPhone X</option><option>iPhone 8 Plus</option><option>iPhone 8</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="canje-field">
+        <label>Almacenamiento</label>
+        <select id="c-storage">
+          <option value="">— GB —</option>
+          <option>64 GB</option><option>128 GB</option><option>256 GB</option>
+          <option>512 GB</option><option>1 TB</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="canje-field">
+      <label>Batería 🔋 &nbsp;<span id="bat-display" style="color:#ede8df;font-weight:700">85%</span></label>
+      <input type="range" id="c-bat" min="50" max="100" value="85"
+        oninput="document.getElementById('bat-display').textContent=this.value+'%'"
+        style="width:100%;accent-color:#ede8df;cursor:pointer;margin-top:.35rem"/>
+    </div>
+
+    <div class="canje-field">
+      <label>Estado</label>
+      <div class="canje-radio-group" id="c-estado-group">
+        <label class="canje-radio"><input type="radio" name="estado" value="Impecable"/> ✨ Impecable</label>
+        <label class="canje-radio"><input type="radio" name="estado" value="Muy bueno"/> 👍 Muy bueno</label>
+        <label class="canje-radio"><input type="radio" name="estado" value="Bueno"/> 👌 Bueno</label>
+        <label class="canje-radio"><input type="radio" name="estado" value="Regular"/> ⚠️ Regular</label>
+      </div>
+    </div>
+
+    <div class="canje-field">
+      <label>¿Tiene fallas o algo roto?</label>
+      <div class="canje-radio-group" id="c-falla-group">
+        <label class="canje-radio"><input type="radio" name="falla" value="No"/> ✅ Todo funciona</label>
+        <label class="canje-radio"><input type="radio" name="falla" value="Sí"/> ❌ Tiene fallas</label>
+      </div>
+    </div>
+
+    <div class="canje-field" id="c-detalle-wrap" style="display:none">
+      <label>Describí la falla</label>
+      <textarea id="c-detalle" placeholder="Qué falla o qué está roto..." rows="2"></textarea>
+    </div>
+
+    <!-- Equipo que quiere -->
+    <div class="canje-section-title" style="margin-top:1.1rem">¿A qué querés pasarte?</div>
+
+    <div class="canje-row-2">
+      <div class="canje-field">
+        <label>Modelo deseado</label>
+        <select id="c-quiere-sel">
+          <option value="">— Seleccioná —</option>
+          <optgroup label="Sellados">
+            <option>iPhone 13 128GB</option>
+            <option>iPhone 15 128GB</option>
+            <option>iPhone 16 128GB</option>
+            <option>iPhone 17 256GB</option>
+            <option>iPhone 17 Air 256GB</option>
+            <option>iPhone 17 Pro 256GB</option>
+            <option>iPhone 17 Pro Max 256GB</option>
+          </optgroup>
+          <optgroup label="Usados">
+            <option>iPhone 11 128GB</option>
+            <option>iPhone 12 128GB</option><option>iPhone 12 Pro 128GB</option>
+            <option>iPhone 13 128GB</option><option>iPhone 13 Pro 128GB</option>
+            <option>iPhone 14 128GB</option><option>iPhone 14 Pro 128GB</option>
+            <option>iPhone 15 128GB</option><option>iPhone 15 Pro 128GB</option>
+            <option>iPhone 16 128GB</option><option>iPhone 16 Pro 128GB</option>
+            <option>iPhone 17 256GB</option><option>iPhone 17 Pro 256GB</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="canje-field">
+        <label>Tu nombre</label>
+        <input type="text" id="c-nombre" placeholder="Nombre"/>
+      </div>
+    </div>
+
+    <button class="canje-submit" onclick="enviarCanje()">
+      <svg width="17" height="17" fill="currentColor"><use href="#ico-wa"/></svg>
+      Enviar consulta por WhatsApp
+    </button>
+  </div>
+</div>
+
+<!-- ══ MODAL PRODUCTO ══ -->
+<div id="modal-overlay" onclick="closeModal(event)">
+  <div id="modal-box">
+    <div class="modal-gallery" id="mg">
+      <div class="modal-track" id="mt"></div>
+      <button class="modal-arrow prev" id="ma-prev" onclick="modalSlide(-1)">&#8249;</button>
+      <button class="modal-arrow next" id="ma-next" onclick="modalSlide(1)">&#8250;</button>
+      <div class="modal-thumbs" id="mth"></div>
+      <div class="modal-dots" id="mdots"></div>
+    </div>
+    <div class="modal-info" id="mi"></div>
+  </div>
+</div>
+
+<!-- ══ OVERLAY + CARRITO ══ -->
+<div id="ov" onclick="closeCart()"></div>
+<div id="cart">
+  <div class="ch">
+    <div>
+      <h3>Carrito <span id="cnt-lbl" style="color:rgba(255,255,255,.3);font-weight:400"></span></h3>
+      <p class="ch-sub" id="cotiz-lbl"></p>
+    </div>
+    <div style="display:flex;align-items:center;gap:.5rem">
+      <button id="btn-vaciar" onclick="vaciarCarrito()">Vaciar</button>
+      <button class="cx" onclick="closeCart()">✕</button>
+    </div>
+  </div>
+  <div class="citems" id="citems"></div>
+  <div class="cfoot" id="cfoot" style="display:none">
+    <div class="ctrow">
+      <span class="ctlbl">Total USDT</span>
+      <div class="ctval"><svg width="13" height="13" fill="currentColor"><use href="#ico-tether"/></svg><span id="tot-usdt">0 USDT</span></div>
+    </div>
+    <div class="ctars" id="tot-ars-row">
+      <span>≈ Pesos argentinos</span><span id="tot-ars"></span>
+    </div>
+    <button class="cchk" onclick="checkout()">
+      <svg width="17" height="17" fill="currentColor"><use href="#ico-wa"/></svg>Comprar por WhatsApp
+    </button>
+    <p class="chint">Te redirigimos a WhatsApp con tu pedido listo</p>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ══ SCRIPT ══ -->
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+// ── Productos (fotos: array de URLs) ────────────────────────────
+// Para agregar fotos reales ponelas en el array "fotos" de cada producto.
+const PRODS = [
+
+  // ════ EQUIPOS SELLADOS ════
+  {id:1,  nombre:"iPhone 13 128GB",          desc:"Sellado de fábrica, garantía oficial",  cat:"Equipos", sub:"Sellados", modelo:"iPhone 13",          usd:499,  stock:5,  fotos:[]},
+  {id:2,  nombre:"iPhone 15 128GB",          desc:"Sellado de fábrica, garantía oficial",  cat:"Equipos", sub:"Sellados", modelo:"iPhone 15",          usd:699,  stock:4,  fotos:[]},
+  {id:3,  nombre:"iPhone 16 128GB",          desc:"Sellado de fábrica, garantía oficial",  cat:"Equipos", sub:"Sellados", modelo:"iPhone 16",          usd:849,  stock:5,  fotos:[]},
+  {id:4,  nombre:"iPhone 17 256GB",          desc:"Sellado de fábrica, garantía oficial",  cat:"Equipos", sub:"Sellados", modelo:"iPhone 17",          usd:999,  stock:3,  fotos:[]},
+  {id:5,  nombre:"iPhone 17 Air 256GB",      desc:"Sellado de fábrica, diseño ultra fino", cat:"Equipos", sub:"Sellados", modelo:"iPhone 17 Air",      usd:1099, stock:3,  fotos:[]},
+  {id:6,  nombre:"iPhone 17 Pro 256GB",      desc:"Sellado de fábrica, titanio",           cat:"Equipos", sub:"Sellados", modelo:"iPhone 17 Pro",      usd:1199, stock:4,  fotos:[]},
+  {id:7,  nombre:"iPhone 17 Pro Max 256GB",  desc:"Sellado de fábrica, titanio",           cat:"Equipos", sub:"Sellados", modelo:"iPhone 17 Pro Max",  usd:1349, stock:2,  fotos:[]},
+
+  // ════ EQUIPOS USADOS ════
+  // iPhone 11
+  {id:101, bat:89,nombre:"iPhone 11 64GB",           desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 11",          usd:175,  stock:3,  fotos:[]},
+  {id:102, bat:87,nombre:"iPhone 11 128GB",          desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 11",          usd:195,  stock:2,  fotos:[]},
+  // iPhone 11 Pro
+  {id:103, bat:91,nombre:"iPhone 11 Pro 64GB",       desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 11 Pro",      usd:210,  stock:2,  fotos:[]},
+  {id:104, bat:88,nombre:"iPhone 11 Pro 256GB",      desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 11 Pro",      usd:240,  stock:1,  fotos:[]},
+  // iPhone 11 Pro Max
+  {id:105, bat:86,nombre:"iPhone 11 Pro Max 64GB",   desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 11 Pro Max",  usd:230,  stock:2,  fotos:[]},
+  {id:106, bat:90,nombre:"iPhone 11 Pro Max 256GB",  desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 11 Pro Max",  usd:260,  stock:1,  fotos:[]},
+  // iPhone 12
+  {id:107, bat:92,nombre:"iPhone 12 64GB",           desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 12",          usd:245,  stock:3,  fotos:[]},
+  {id:108, bat:89,nombre:"iPhone 12 128GB",          desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 12",          usd:265,  stock:4,  fotos:[]},
+  // iPhone 12 Pro
+  {id:109, bat:93,nombre:"iPhone 12 Pro 128GB",      desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 12 Pro",      usd:290,  stock:2,  fotos:[]},
+  {id:110, bat:91,nombre:"iPhone 12 Pro 256GB",      desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 12 Pro",      usd:315,  stock:2,  fotos:[]},
+  // iPhone 12 Pro Max
+  {id:111, bat:88,nombre:"iPhone 12 Pro Max 128GB",  desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 12 Pro Max",  usd:310,  stock:1,  fotos:[]},
+  {id:112, bat:90,nombre:"iPhone 12 Pro Max 256GB",  desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 12 Pro Max",  usd:340,  stock:2,  fotos:[]},
+  // iPhone 13
+  {id:113, bat:94,nombre:"iPhone 13 128GB",          desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 13",          usd:370,  stock:4,  fotos:[]},
+  {id:114, bat:92,nombre:"iPhone 13 256GB",          desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 13",          usd:395,  stock:3,  fotos:[]},
+  // iPhone 13 Pro
+  {id:115, bat:95,nombre:"iPhone 13 Pro 128GB",      desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 13 Pro",      usd:420,  stock:2,  fotos:[]},
+  {id:116, bat:93,nombre:"iPhone 13 Pro 256GB",      desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 13 Pro",      usd:450,  stock:2,  fotos:[]},
+  // iPhone 13 Pro Max
+  {id:117, bat:91,nombre:"iPhone 13 Pro Max 128GB",  desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 13 Pro Max",  usd:440,  stock:1,  fotos:[]},
+  {id:118, bat:94,nombre:"iPhone 13 Pro Max 256GB",  desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 13 Pro Max",  usd:470,  stock:2,  fotos:[]},
+  // iPhone 14
+  {id:119, bat:93,nombre:"iPhone 14 128GB",          desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 14",          usd:490,  stock:3,  fotos:[]},
+  {id:120, bat:91,nombre:"iPhone 14 256GB",          desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 14",          usd:520,  stock:2,  fotos:[]},
+  // iPhone 14 Pro
+  {id:121, bat:96,nombre:"iPhone 14 Pro 128GB",      desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 14 Pro",      usd:560,  stock:2,  fotos:[]},
+  {id:122, bat:94,nombre:"iPhone 14 Pro 256GB",      desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 14 Pro",      usd:595,  stock:2,  fotos:[]},
+  // iPhone 14 Pro Max
+  {id:123, bat:92,nombre:"iPhone 14 Pro Max 128GB",  desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 14 Pro Max",  usd:590,  stock:1,  fotos:[]},
+  {id:124, bat:95,nombre:"iPhone 14 Pro Max 256GB",  desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 14 Pro Max",  usd:625,  stock:2,  fotos:[]},
+  // iPhone 15
+  {id:125, bat:94,nombre:"iPhone 15 128GB",          desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 15",          usd:640,  stock:3,  fotos:[]},
+  {id:126, bat:96,nombre:"iPhone 15 256GB",          desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 15",          usd:670,  stock:2,  fotos:[]},
+  // iPhone 15 Pro
+  {id:127, bat:97,nombre:"iPhone 15 Pro 128GB",      desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 15 Pro",      usd:710,  stock:2,  fotos:[]},
+  {id:128, bat:95,nombre:"iPhone 15 Pro 256GB",      desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 15 Pro",      usd:745,  stock:1,  fotos:[]},
+  // iPhone 15 Pro Max
+  {id:129, bat:96,nombre:"iPhone 15 Pro Max 256GB",  desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 15 Pro Max",  usd:790,  stock:2,  fotos:[]},
+  // iPhone 16
+  {id:130, bat:95,nombre:"iPhone 16 128GB",          desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 16",          usd:770,  stock:2,  fotos:[]},
+  {id:131, bat:97,nombre:"iPhone 16 256GB",          desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 16",          usd:800,  stock:2,  fotos:[]},
+  // iPhone 16 Pro
+  {id:132, bat:98,nombre:"iPhone 16 Pro 128GB",      desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 16 Pro",      usd:850,  stock:1,  fotos:[]},
+  {id:133, bat:96,nombre:"iPhone 16 Pro 256GB",      desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 16 Pro",      usd:890,  stock:2,  fotos:[]},
+  // iPhone 16 Pro Max
+  {id:134, bat:97,nombre:"iPhone 16 Pro Max 256GB",  desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 16 Pro Max",  usd:950,  stock:1,  fotos:[]},
+  // iPhone 17
+  {id:135, bat:99,nombre:"iPhone 17 256GB",          desc:"Usado, excelente estado",               cat:"Equipos", sub:"Usados",   modelo:"iPhone 17",          usd:880,  stock:2,  fotos:[]},
+  // iPhone 17 Air
+  {id:136, bat:99,nombre:"iPhone 17 Air 256GB",      desc:"Usado, diseño ultra fino",              cat:"Equipos", sub:"Usados",   modelo:"iPhone 17 Air",      usd:980,  stock:2,  fotos:[]},
+  // iPhone 17 Pro
+  {id:137, bat:99,nombre:"iPhone 17 Pro 256GB",      desc:"Usado, excelente estado, titanio",      cat:"Equipos", sub:"Usados",   modelo:"iPhone 17 Pro",      usd:1100, stock:1,  fotos:[]},
+  // iPhone 17 Pro Max
+  {id:138, bat:99,nombre:"iPhone 17 Pro Max 256GB",  desc:"Usado, excelente estado, titanio",      cat:"Equipos", sub:"Usados",   modelo:"iPhone 17 Pro Max",  usd:1250, stock:1,  fotos:[]},
+
+  // ════ FUNDAS ════
+  {id:201,nombre:"Funda MagSafe 16 Pro",      desc:"Silicona premium con MagSafe",         cat:"Fundas",  sub:null, modelo:"iPhone 16 Pro",     usd:35,  stock:20, fotos:[]},
+  {id:202,nombre:"Funda Clear iPhone 15",     desc:"Anti-yellowing, bordes reforzados",    cat:"Fundas",  sub:null, modelo:"iPhone 15",         usd:18,  stock:30, fotos:[]},
+  {id:203,nombre:"Funda Cuero iPhone 14 Pro", desc:"Cuero genuino, varios colores",        cat:"Fundas",  sub:null, modelo:"iPhone 14 Pro",     usd:28,  stock:15, fotos:[]},
+  {id:204,nombre:"Funda Militar iPhone 13",   desc:"Protección extrema, 4 capas",          cat:"Fundas",  sub:null, modelo:"iPhone 13",         usd:22,  stock:12, fotos:[]},
+  {id:205,nombre:"Funda Transparente 11",     desc:"Ultra fina, anti-amarillamiento",      cat:"Fundas",  sub:null, modelo:"iPhone 11",         usd:12,  stock:40, fotos:[]},
+
+  // ════ CARGADORES ════
+  {id:301,nombre:"Cargador USB-C 20W",        desc:"Original Apple, carga rápida",         cat:"Cargadores",sub:null,modelo:null,usd:29,stock:15,fotos:[]},
+  {id:302,nombre:"Cable USB-C Lightning 1m",  desc:"Trenzado, compatible MFi",             cat:"Cargadores",sub:null,modelo:null,usd:19,stock:25,fotos:[]},
+  {id:303,nombre:"Cargador MagSafe 15W",      desc:"Carga inalámbrica rápida",             cat:"Cargadores",sub:null,modelo:null,usd:39,stock:10,fotos:[]},
+];
+
+// índice de foto activa por producto (para las cards)
+const photoIdx = {};
+PRODS.forEach(p => { photoIdx[String(p.id)] = 0; });
+
+// ── Estado ────────────────────────────────────────────────────
+let dolar     = null;
+let dolarPrev = null;
+let filtro    = 'Todos';
+let carrito   = [];
+let toastTmr  = null;
+let modalProd = null;
+let modalIdx  = 0;
+
+// ── Formato ───────────────────────────────────────────────────
+const fU = n => `${Number(n).toLocaleString('en-US',{maximumFractionDigits:0})} USDT`;
+const fA = n => new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',maximumFractionDigits:0}).format(n);
+
+// ── SVG helpers ───────────────────────────────────────────────
+const svgUse = (id, w=13, h=13) =>
+  `<svg width="${w}" height="${h}" fill="currentColor"><use href="#${id}"/></svg>`;
+
+function aplicarDolar(val) {
+  dolarPrev = dolar;
+  dolar = val;
+  const el = document.getElementById('t-price');
+  const ar = document.getElementById('t-arrow');
+  if (!el) return;
+  el.style.animation  = 'none';
+  el.style.fontSize   = '.82rem';
+  el.style.fontWeight = '700';
+  el.style.color      = '#34d399';
+  el.textContent      = fA(dolar);
+  if (ar) {
+    if (dolarPrev && dolar > dolarPrev)      { ar.textContent=' ▲'; ar.style.color='#34d399'; el.style.color='#34d399'; }
+    else if (dolarPrev && dolar < dolarPrev) { ar.textContent=' ▼'; ar.style.color='#f87171'; el.style.color='#f87171'; }
+    else { ar.textContent=''; }
+  }
+  const b = document.getElementById('hero-badge');
+  if (b) {
+    b.className = 'ok';
+    b.innerHTML = svgUse('ico-tether')
+      + ' <span style="color:rgba(237,232,223,.55)">USDT hoy:</span>'
+      + ' <span class="hval">' + fA(dolar) + '</span>'
+      + ' <span class="hsrc" style="color:rgba(52,211,153,.5)">en vivo</span>';
+  }
+  const cl = document.getElementById('cotiz-lbl');
+  if (cl) cl.textContent = '1 USD = ' + fA(dolar);
+  renderGrid();
+  renderCarrito();
+}
+
+function updateTicker() { /* alias */ }
+
+// ── Cotización: múltiples fuentes con CORS habilitado ─────────
+async function fetchDolar() {
+  // Binance: par USDT/ARS — API pública, CORS abierto
+  const BINANCE_ENDPOINTS = [
+    'https://api.binance.com/api/v3/ticker/price?symbol=USDTARS',
+    'https://api1.binance.com/api/v3/ticker/price?symbol=USDTARS',
+    'https://api2.binance.com/api/v3/ticker/price?symbol=USDTARS',
+    'https://api3.binance.com/api/v3/ticker/price?symbol=USDTARS',
+    'https://data-api.binance.vision/api/v3/ticker/price?symbol=USDTARS',
+  ];
+
+  for (const url of BINANCE_ENDPOINTS) {
+    try {
+      const r = await fetch(url);
+      if (!r.ok) continue;
+      const d = await r.json();
+      const val = Math.round(parseFloat(d.price));
+      if (val > 100) { aplicarDolar(val); return; }
+    } catch(e) {}
+  }
+
+  // Fallback: dolarapi.com
+  try {
+    const r = await fetch('https://dolarapi.com/v1/dolares');
+    if (r.ok) {
+      const arr = await r.json();
+      const obj = arr.find(x => x.casa === 'cripto') || arr.find(x => x.casa === 'blue');
+      if (obj) {
+        const val = Math.round(parseFloat(obj.venta || obj.compra));
+        if (val > 100) { aplicarDolar(val); return; }
+      }
+    }
+  } catch(e) {}
+
+  // Fallback: argentinadatos
+  try {
+    const r = await fetch('https://api.argentinadatos.com/v1/cotizaciones/dolares/cripto');
+    if (r.ok) {
+      const d = await r.json();
+      const obj = Array.isArray(d) ? d[d.length-1] : d;
+      const val = Math.round(parseFloat(obj.venta || obj.compra));
+      if (val > 100) { aplicarDolar(val); return; }
+    }
+  } catch(e) {}
+
+  // Sin datos
+  const el = document.getElementById('t-price');
+  if (el) { el.style.animation='none'; el.style.color='rgba(237,232,223,.3)'; el.textContent='---'; }
+}
+async function retryFetchDolar() {
+  const el = document.getElementById('t-price');
+  if (el) { el.textContent='···'; el.style.color='rgba(237,232,223,.3)'; el.style.animation='pulse 1.6s infinite'; }
+  await fetchDolar();
+}
+
+fetchDolar();
+setInterval(fetchDolar, 60000);
+
+// ── Filtros ───────────────────────────────────────────────────
+document.getElementById('filters').addEventListener('click', e => {
+  const btn = e.target.closest('.pill');
+  if (!btn) return;
+  filtro = btn.dataset.f;
+  document.querySelectorAll('.pill').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderGrid();
+  toggleSearchBar();
+});
+
+function getProds() {
+  return PRODS.filter(p => {
+    if (p.cat === 'Equipos' && p.sub === 'Usados') {
+      const n = parseInt((p.modelo||'').match(/iPhone\s(\d+)/)?.[1]||0);
+      if (n < 11) return false;
+    }
+    if (filtro === 'Todos')      return true;
+    if (filtro === 'Sellados')   return p.cat === 'Equipos' && p.sub === 'Sellados';
+    if (filtro === 'Usados')     return p.cat === 'Equipos' && p.sub === 'Usados';
+    if (filtro === 'Fundas')     return p.cat === 'Fundas';
+    if (filtro === 'Cargadores') return p.cat === 'Cargadores';
+    return true;
+  });
+}
+
+// ── Carrusel helpers ──────────────────────────────────────────
+function buildCardGallery(p) {
+  const idx   = photoIdx[p.id] || 0;
+  const fotos = p.fotos || [];
+  const multi = fotos.length > 1;
+
+  if (!fotos.length) {
+    return `
+      <div class="card-gallery" id="cg-${p.id}">
+        <div class="gallery-placeholder">
+          ${svgUse('ico-apple',30,30)}
+          <span>${p.modelo || p.cat}</span>
+        </div>
+        ${badgeHTML(p)}
+      </div>`;
+  }
+
+  const slides = fotos.map((url,i) =>
+    `<div class="gallery-slide${i===idx?' active':''}" id="gs-${p.id}-${i}"><img src="${url}" alt="${p.nombre} foto ${i+1}" loading="lazy"/></div>`
+  ).join('');
+
+  const dots = multi ? `<div class="gal-dots">` +
+    fotos.map((_,i) => `<button class="gal-dot${i===idx?' on':''}" onclick="cardDot(event,'${p.id}',${i})"></button>`).join('') +
+    `</div>` : '';
+
+  const arrows = multi ? `
+    <button class="gal-arrow prev" onclick="cardSlide(event,'${p.id}',-1)">&#8249;</button>
+    <button class="gal-arrow next" onclick="cardSlide(event,'${p.id}',1)">&#8250;</button>` : '';
+
+  return `
+    <div class="card-gallery" id="cg-${p.id}">
+      <div class="gallery-track" id="gt-${p.id}">
+        ${slides}
+      </div>
+      ${arrows}${dots}${badgeHTML(p)}
+    </div>`;
+}
+
+function batClass(n){ return n >= 85 ? 'bat-high' : n >= 70 ? 'bat-mid' : 'bat-low'; }
+function batFillW(n){ return Math.round((n/100)*13) + 'px'; }
+
+function batBadgeHTML(bat){
+  if(!bat) return '';
+  const cls = batClass(bat);
+  return `<div class="bat-badge ${cls}">
+    <div class="bat-bar">
+      <div class="bat-fill" style="width:${batFillW(bat)}"></div>
+    </div>
+    ${bat}%
+  </div>`;
+}
+
+function badgeHTML(p) {
+  const b = p.sub === 'Sellados' ? `<span class="badge-new">NUEVO</span>`
+          : p.sub === 'Usados'   ? `<span class="badge-used">USADO</span>` : '';
+  const l = (p.stock <= 2 && p.stock > 0)
+    ? `<span class="badge-last">¡Último${p.stock>1?'s':''}!</span>` : '';
+  const bat = (p.sub === 'Usados' && p.bat) ? batBadgeHTML(p.bat) : '';
+  return b + l + bat;
+}
+
+function cardSlide(e, id, dir) {
+  if (e) e.stopPropagation();
+  const sid = String(id);
+  const p = PRODS.find(x => String(x.id) === sid);
+  if (!p || !p.fotos || !p.fotos.length) return;
+  if (photoIdx[sid] === undefined) photoIdx[sid] = 0;
+  photoIdx[sid] = (photoIdx[sid] + dir + p.fotos.length) % p.fotos.length;
+  applyCardSlide(sid);
+}
+
+function cardDot(e, id, i) {
+  e.stopPropagation();
+  const sid = String(id);
+  photoIdx[sid] = i;
+  applyCardSlide(sid);
+}
+
+function applyCardSlide(id) {
+  const sid = String(id);
+  const idx = photoIdx[sid] || 0;
+  // activar slide correcto
+  document.querySelectorAll('#gt-'+sid+' .gallery-slide').forEach((s,i) => {
+    s.classList.toggle('active', i===idx);
+  });
+  // actualizar dots
+  document.querySelectorAll('#cg-'+sid+' .gal-dot').forEach((d,i) => d.classList.toggle('on', i===idx));
+}
+
+// ── Render grid ───────────────────────────────────────────────
+function renderGrid() {
+  const prods = getProds();
+  document.getElementById('pcount').textContent =
+    `${prods.length} producto${prods.length!==1?'s':''} disponible${prods.length!==1?'s':''}`;
+
+  const grid = document.getElementById('grid');
+  if (!prods.length) {
+    grid.innerHTML = `<div class="no-results">No hay productos en esta categoría.</div>`;
+    return;
+  }
+
+  grid.innerHTML = prods.map((p,i) => {
+    const precioARS = dolar ? p.usd * dolar : null;
+    const priceBlock = precioARS
+      ? `<div class="p-ars-main">${fA(precioARS)}</div>
+         <div class="p-usdt-sub">${svgUse('ico-tether')} ${fU(p.usd)}</div>`
+      : `<div class="p-loading">cargando precio…</div>
+         <div class="p-usdt-sub" style="opacity:.4">${svgUse('ico-tether')} ${fU(p.usd)}</div>`;
+    return `
+    <div class="card" id="card-${p.id}" onclick="openModal('${p.id}')">
+      ${buildCardGallery(p)}
+      <div class="card-body">
+        <div class="card-name">${p.nombre}</div>
+        <div class="card-desc">${p.desc}</div>
+        <div class="card-price">${priceBlock}</div>
+        <button class="btn-add" onclick="addCart(event,'${p.id}')">Agregar al carrito</button>
+        ${p.cat === 'Equipos' ? `<button class="btn-canje" onclick="openCanjeConModelo(event,'${p.nombre.replace(/'/g,"\\'")}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4m0 0L3 8m4-4 4 4"/><path d="M17 8v12m0 0 4-4m-4 4-4-4"/></svg> Plan Canje</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Modal ─────────────────────────────────────────────────────
+function openModal(id) {
+  // si fue un swipe en la galería, no abrir modal
+  const gal = document.getElementById('cg-'+id);
+  if (gal && gal._swiped) { gal._swiped = false; return; }
+  const sid = String(id);
+  modalProd = PRODS.find(p => String(p.id) === sid);
+  if (!modalProd) return;
+  modalIdx  = photoIdx[sid] || 0;
+  // Mostrar overlay primero para evitar reflow visible
+  const overlay = document.getElementById('modal-overlay');
+  overlay.classList.add('show');
+  document.body.style.overflow = 'hidden';
+  // Render en el siguiente frame para que el browser pinte el overlay primero
+  requestAnimationFrame(() => renderModal());
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modal-overlay')) return;
+  document.getElementById('modal-overlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+function closeModalForce() {
+  document.getElementById('modal-overlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+function renderModal() {
+  const p     = modalProd;
+  const fotos = p.fotos || [];
+  const multi = fotos.length > 1;
+
+  // ── galería modal ──
+  const mt = document.getElementById('mt');
+  if (!fotos.length) {
+    mt.innerHTML = `<div class="modal-slide"><div class="modal-placeholder">
+      ${svgUse('ico-apple',48,48)}<span style="font-size:.7rem;color:rgba(255,255,255,.25)">${p.modelo||p.cat}</span>
+    </div></div>`;
+  } else {
+    mt.innerHTML = fotos.map((url,i) =>
+      `<div class="modal-slide"><img src="${url}" alt="${p.nombre} foto ${i+1}"/></div>`
+    ).join('');
+  }
+  mt.style.transform = `translateX(-${modalIdx*100}%)`;
+
+  // flechas modal
+  document.getElementById('ma-prev').style.display = multi ? 'flex' : 'none';
+  document.getElementById('ma-next').style.display = multi ? 'flex' : 'none';
+
+  // thumbnails
+  const mth = document.getElementById('mth');
+  if (fotos.length > 1) {
+    mth.innerHTML = fotos.map((url,i) =>
+      `<div class="mthumb${i===modalIdx?' on':''}" onclick="modalGoTo(${i})">
+        <img src="${url}" alt="thumb ${i+1}"/>
+      </div>`
+    ).join('');
+    mth.style.display = 'flex';
+  } else {
+    mth.style.display = 'none';
+  }
+
+  // dots modal
+  const mdots = document.getElementById('mdots');
+  if (fotos.length > 1) {
+    mdots.innerHTML = fotos.map((_,i) =>
+      `<button class="modal-dot${i===modalIdx?' on':''}" onclick="modalGoTo(${i})"></button>`
+    ).join('');
+    mdots.style.bottom = fotos.length > 1 ? '56px' : '10px';
+  } else {
+    mdots.innerHTML = '';
+  }
+
+  // ── info modal ──
+  const badgeTxt = p.sub === 'Sellados' ? `<span class="badge-new" style="position:static">NUEVO</span>`
+                 : p.sub === 'Usados'   ? `<span class="badge-used" style="position:static">USADO</span>` : '';
+  const batHTML  = (p.sub === 'Usados' && p.bat) ? `
+    <div style="display:flex;align-items:center;gap:.5rem;margin-top:.1rem">
+      <div class="bat-badge ${batClass(p.bat)}" style="position:static;font-size:.75rem;padding:.28rem .7rem">
+        <div class="bat-bar" style="width:22px;height:11px">
+          <div class="bat-fill" style="width:${batFillW(p.bat)}"></div>
+        </div>
+        Batería: <strong>${p.bat}%</strong>
+      </div>
+    </div>` : '';
+  const modeloTxt = p.modelo ? `${svgUse('ico-apple')} ${p.modelo}` : '';
+  const precioARSmodal = dolar ? p.usd * dolar : null;
+  const ars = precioARSmodal
+    ? `<div class="modal-price-usdt" style="font-size:1.5rem;font-weight:900;letter-spacing:-.03em;color:#f5f5f7;display:block">${fA(precioARSmodal)}</div>
+       <div style="display:flex;align-items:center;gap:.3rem;font-size:.82rem;color:rgba(255,255,255,.38);margin-top:.2rem">${svgUse('ico-tether',13,13)} ${fU(p.usd)}</div>`
+    : `<div style="display:flex;align-items:center;gap:.3rem;font-size:1.2rem;font-weight:800">${svgUse('ico-tether',16,16)} ${fU(p.usd)}</div>`;
+  const lastTxt = (p.stock <= 2 && p.stock > 0)
+    ? `<span class="modal-stock" style="color:#f87171;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25)">¡Solo quedan ${p.stock}!</span>` : '';
+
+  document.getElementById('mi').innerHTML = `
+    <button class="modal-close" onclick="closeModalForce()">✕</button>
+    <div class="modal-name">${p.nombre}</div>
+    ${badgeTxt ? `<div class="modal-badge">${badgeTxt}</div>` : ''}
+    ${batHTML || ''}
+    ${modeloTxt ? `<div class="modal-model">${modeloTxt}</div>` : ''}
+    <div class="modal-desc">${p.desc}</div>
+    ${ars}
+    <div class="modal-stock">Stock: ${p.stock} unidades</div>
+    ${lastTxt}
+    <button class="modal-add" onclick="addCart(null,${p.id})">
+      ${svgUse('ico-cart',18,18)} Agregar al carrito
+    </button>
+    ${p.cat === 'Equipos' ? `<button class="btn-canje" style="margin-top:.6rem" onclick="openCanjeConModelo(null,'${p.nombre}')">🔄 Plan Canje — canjeá tu iPhone</button>` : ''}`;
+}
+
+function modalSlide(dir) {
+  const p = modalProd;
+  if (!p || !p.fotos.length) return;
+  modalIdx = (modalIdx + dir + p.fotos.length) % p.fotos.length;
+  photoIdx[p.id] = modalIdx;
+  applyModalSlide();
+  applyCardSlide(p.id); // sincroniza la card también
+}
+
+function modalGoTo(i) {
+  modalIdx = i;
+  photoIdx[modalProd.id] = i;
+  applyModalSlide();
+  applyCardSlide(modalProd.id);
+}
+
+function applyModalSlide() {
+  document.getElementById('mt').style.transform = `translate3d(-${modalIdx*100}%,0,0)`;
+  document.querySelectorAll('#mdots .modal-dot').forEach((d,i) => d.classList.toggle('on', i===modalIdx));
+  document.querySelectorAll('#mth .mthumb').forEach((t,i) => t.classList.toggle('on', i===modalIdx));
+}
+
+// swipe en modal
+let touchX = null;
+document.getElementById('mg').addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, {passive:true});
+document.getElementById('mg').addEventListener('touchend', e => {
+  if (touchX === null) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  if (Math.abs(dx) > 40) modalSlide(dx < 0 ? 1 : -1);
+  touchX = null;
+});
+
+// swipe en cards
+document.getElementById('grid').addEventListener('touchstart', e => {
+  const gal = e.target.closest('.card-gallery');
+  if (gal) { gal._tx = e.touches[0].clientX; gal._ty = e.touches[0].clientY; gal._swiped = false; }
+}, {passive:true});
+document.getElementById('grid').addEventListener('touchend', e => {
+  const gal = e.target.closest('.card-gallery');
+  if (!gal || gal._tx == null) return;
+  const dx = e.changedTouches[0].clientX - gal._tx;
+  const dy = e.changedTouches[0].clientY - gal._ty;
+  if (Math.abs(dx) > 35 && Math.abs(dx) > Math.abs(dy)) {
+    const id = gal.id.replace('cg-','');
+    cardSlide(null, id, dx < 0 ? 1 : -1);
+    gal._swiped = true;
+    e.stopPropagation();
+  }
+  gal._tx = null; gal._ty = null;
+});
+
+// ── Carrito ───────────────────────────────────────────────────
+function addCart(e, id) {
+  if (e) e.stopPropagation();
+  const sid = String(id);
+  const p   = PRODS.find(x => String(x.id) === sid);
+  if (!p)   { showToast('Producto no encontrado', 'err'); return; }
+  const ex  = carrito.find(i => String(i.id) === sid);
+  if (ex) ex.qty++;
+  else    carrito.push({...p, qty:1});
+  renderCarrito();
+  updateBadge();
+  showToast(p.nombre.split(' ').slice(0,3).join(' ') + ' agregado');
+}
+
+function remItem(id) {
+  const sid = String(id);
+  carrito = carrito.filter(i => String(i.id) !== sid);
+  renderCarrito(); updateBadge();
+}
+
+function chQty(id, d) {
+  const sid = String(id);
+  const it  = carrito.find(i => String(i.id) === sid);
+  if (!it) return;
+  it.qty = Math.max(1, it.qty + d);
+  renderCarrito(); updateBadge();
+}
+
+function updateBadge() {
+  const n = carrito.reduce((a,i)=>a+i.qty,0);
+  const b = document.getElementById('cbadge');
+  b.textContent = n;
+  b.style.display = n > 0 ? 'flex' : 'none';
+}
+
+function vaciarCarrito() {
+  if (!carrito.length) return;
+  carrito = [];
+  renderCarrito();
+  updateBadge();
+  showToast('Carrito vaciado');
+}
+
+function renderCarrito() {
+  const total = carrito.reduce((a,i)=>a+i.usd*i.qty,0);
+  const cnt   = carrito.reduce((a,i)=>a+i.qty,0);
+  document.getElementById('cnt-lbl').textContent = cnt > 0 ? `(${cnt})` : '';
+  document.getElementById('tot-usdt').textContent = fU(total);
+
+  const arsRow = document.getElementById('tot-ars-row');
+  if (dolar) { arsRow.style.display='flex'; document.getElementById('tot-ars').textContent = fA(total*dolar); }
+  else        { arsRow.style.display='none'; }
+
+  document.getElementById('cfoot').style.display = carrito.length ? 'block' : 'none';
+  document.getElementById('cotiz-lbl').textContent = dolar ? `1 USDT = ${fA(dolar)}` : '';
+  const btnVaciar = document.getElementById('btn-vaciar');
+  if (btnVaciar) btnVaciar.classList.toggle('visible', carrito.length > 0);
+
+  const el = document.getElementById('citems');
+  if (!carrito.length) {
+    el.innerHTML = `<div class="cempty">${svgUse('ico-cart',22,22)}<span>Tu carrito está vacío</span></div>`;
+    return;
+  }
+
+  el.innerHTML = carrito.map(it => {
+    const sub   = it.usd * it.qty;
+    const thumb = it.fotos && it.fotos.length
+      ? `<img src="${it.fotos[0]}" alt="${it.nombre}"/>`
+      : svgUse('ico-apple',19,19);
+    const arsHtml = dolar ? `<div class="csub-ars">${fA(sub*dolar)}</div>` : '';
+    return `
+    <div class="citem">
+      <div class="cthumb">${thumb}</div>
+      <div class="cinfo">
+        <div class="cname">${it.nombre}</div>
+        <div class="cunit">${svgUse('ico-tether')} ${fU(it.usd)} c/u</div>
+        <div class="crow">
+          <div class="qty">
+            <button class="qb" onclick="chQty('${it.id}',-1)">−</button>
+            <span class="qv">${it.qty}</span>
+            <button class="qb" onclick="chQty('${it.id}',1)">+</button>
+          </div>
+          <div class="csub">
+            <div class="csub-usdt">${svgUse('ico-tether')} ${fU(sub)}</div>
+            ${arsHtml}
+            <button class="cdel" onclick="remItem('${it.id}')">Eliminar</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── WhatsApp checkout ─────────────────────────────────────────
+function checkout() {
+  if (!carrito.length) return;
+  const total = carrito.reduce((a,i)=>a+i.usd*i.qty,0);
+  const lineas = carrito.map(i =>
+    `• ${i.nombre} x${i.qty} — ${fU(i.usd*i.qty)}${dolar?` (≈ ${fA(i.usd*i.qty*dolar)})`:''}`)
+    .join('\n');
+  const arsT = dolar ? `\n💱 Total ARS: ${fA(total*dolar)}` : '';
+  const cotiz = dolar ? `\n📊 USDT: ${fA(dolar)}` : '';
+  const msg = encodeURIComponent(
+    `¡Hola iPhonixAr! 👋\nPedido:\n\n${lineas}\n\n💵 Total: ${fU(total)}${arsT}${cotiz}\n\n¿Me confirmás disponibilidad y forma de pago? ¡Gracias!`);
+  window.open(`https://wa.me/5492235395949?text=${msg}`, '_blank');
+}
+
+function openCart()  { document.getElementById('ov').classList.add('show'); document.getElementById('cart').classList.add('open'); renderCarrito(); }
+function closeCart() { document.getElementById('ov').classList.remove('show'); document.getElementById('cart').classList.remove('open'); }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = '✓ ' + msg;
+  t.className = 'show';
+  clearTimeout(toastTmr);
+  toastTmr = setTimeout(() => { t.className = ''; }, 2600);
+}
+
+
+// ── Buscador Usados ───────────────────────────────────────────
+let searchQuery   = '';
+let sugFocusIdx   = -1;
+
+const searchWrap  = document.getElementById('search-wrap');
+const searchInput = document.getElementById('search-input');
+const searchClear = document.getElementById('search-clear');
+const searchSugs  = document.getElementById('search-suggestions');
+
+// mostrar/ocultar caja según filtro activo
+function toggleSearchBar() {
+  if (filtro === 'Usados') {
+    searchWrap.classList.add('show');
+    setTimeout(() => searchInput.focus(), 80);
+  } else {
+    searchWrap.classList.remove('show');
+    clearSearch();
+  }
+}
+
+searchInput.addEventListener('input', () => {
+  searchQuery = searchInput.value.trim();
+  searchClear.classList.toggle('show', searchQuery.length > 0);
+  renderSuggestions();
+});
+
+searchInput.addEventListener('keydown', e => {
+  const items = searchSugs.querySelectorAll('.sug-item');
+  if (!items.length) return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    sugFocusIdx = Math.min(sugFocusIdx + 1, items.length - 1);
+    items.forEach((el,i) => el.classList.toggle('focused', i === sugFocusIdx));
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    sugFocusIdx = Math.max(sugFocusIdx - 1, 0);
+    items.forEach((el,i) => el.classList.toggle('focused', i === sugFocusIdx));
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    const focused = searchSugs.querySelector('.sug-item.focused');
+    if (focused) focused.click();
+    else if (items.length === 1) items[0].click();
+  } else if (e.key === 'Escape') {
+    closeSuggestions();
+    searchInput.blur();
+  }
+});
+
+// cerrar sugerencias al click fuera
+document.addEventListener('click', e => {
+  if (!document.getElementById('search-wrap').contains(e.target)) {
+    closeSuggestions();
+  }
+});
+
+function closeSuggestions() {
+  searchSugs.classList.remove('show');
+  searchSugs.innerHTML = '';
+  sugFocusIdx = -1;
+}
+
+function clearSearch() {
+  searchInput.value = '';
+  searchQuery = '';
+  searchClear.classList.remove('show');
+  closeSuggestions();
+  renderGrid();
+}
+
+function renderSuggestions() {
+  sugFocusIdx = -1;
+  if (!searchQuery || searchQuery.length < 2) {
+    closeSuggestions();
+    return;
+  }
+
+  const q = searchQuery.toLowerCase().replace(/iphone\s*/i,'').trim();
+  const usados = PRODS.filter(p => p.cat === 'Equipos' && p.sub === 'Usados');
+
+  // match: nombre completo o número de modelo
+  const matches = usados.filter(p => {
+    const nombre = p.nombre.toLowerCase();
+    const modelo = (p.modelo||'').toLowerCase();
+    return nombre.includes(q) || modelo.includes(q) ||
+           nombre.includes(searchQuery.toLowerCase()) ||
+           modelo.includes(searchQuery.toLowerCase());
+  });
+
+  if (!matches.length) {
+    searchSugs.innerHTML = `<div style="padding:.75rem 1rem;font-size:.8rem;color:rgba(255,255,255,.28)">Sin resultados para "${searchQuery}"</div>`;
+    searchSugs.classList.add('show');
+    return;
+  }
+
+  // agrupar por modelo
+  const grupos = {};
+  matches.forEach(p => {
+    const key = p.modelo || p.nombre;
+    if (!grupos[key]) grupos[key] = [];
+    grupos[key].push(p);
+  });
+
+  let html = '';
+  Object.entries(grupos).forEach(([modelo, items]) => {
+    if (Object.keys(grupos).length > 1) {
+      html += `<div class="sug-heading">${modelo}</div>`;
+    }
+    items.forEach(p => {
+      const stockClass = p.stock === 0 ? 'out' : p.stock <= 2 ? 'low' : 'ok';
+      const stockTxt   = p.stock === 0 ? 'Sin stock' : p.stock <= 2 ? `Último${p.stock>1?'s':''} (${p.stock})` : `Stock: ${p.stock}`;
+      const ars = dolar ? ` · ${fA(p.usd * dolar)}` : '';
+      html += `
+      <button class="sug-item" onclick="scrollToCard(${p.id})">
+        <span style="flex:1">
+          <strong style="color:#fff">${p.nombre}</strong>
+          <span style="display:block;font-size:.7rem;color:rgba(255,255,255,.38);margin-top:.1rem">${fU(p.usd)}${ars}</span>
+        </span>
+        <span class="sug-stock ${stockClass}">${stockTxt}</span>
+      </button>`;
+    });
+    html += '<div class="sug-sep"></div>';
+  });
+
+  searchSugs.innerHTML = html;
+  searchSugs.classList.add('show');
+}
+
+function scrollToCard(id) {
+  closeSuggestions();
+  searchInput.blur();
+
+  // asegurar que estamos en vista Usados
+  if (filtro !== 'Usados') {
+    filtro = 'Usados';
+    document.querySelectorAll('.pill').forEach(b => b.classList.remove('on'));
+    document.querySelector('.pill[data-f="Usados"]').classList.add('on');
+    renderGrid();
+    toggleSearchBar();
+  }
+
+  // esperar un tick para que el grid esté renderizado
+  requestAnimationFrame(() => {
+    const card = document.getElementById('card-'+id);
+    if (!card) return;
+
+    // scroll suave a la card
+    const offset = card.getBoundingClientRect().top + window.scrollY - 120;
+    window.scrollTo({ top: offset, behavior: 'smooth' });
+
+    // highlight
+    card.classList.remove('highlight');
+    void card.offsetWidth; // force reflow
+    card.classList.add('highlight');
+    setTimeout(() => card.classList.remove('highlight'), 1900);
+  });
+}
+
+
+// ── Ticker manual ─────────────────────────────────────────────
+function toggleTickerPopup(e) {
+  e.stopPropagation();
+  const p = document.getElementById('ticker-popup');
+  const inp = document.getElementById('ticker-val-input');
+  p.classList.toggle('show');
+  if (p.classList.contains('show')) {
+    if (dolar) inp.value = dolar;
+    setTimeout(() => inp.focus(), 50);
+  }
+}
+document.addEventListener('click', e => {
+  const p = document.getElementById('ticker-popup');
+  if (p && !p.closest('[style*="position:relative"]')?.contains(e.target)) {
+    p.classList.remove('show');
+  }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.getElementById('ticker-popup')?.classList.remove('show');
+});
+document.getElementById('ticker-val-input')?.addEventListener('keydown', e => {
+  if (e.key === 'Enter') setDolarManual();
+});
+function setDolarManual() {
+  const v = parseInt(document.getElementById('ticker-val-input').value);
+  if (!v || v < 1) return;
+  aplicarDolar(v);
+  document.getElementById('ticker-popup').classList.remove('show');
+  showToast('Cotización actualizada: ' + fA(v));
+}
+
+// ── Modal Canje ────────────────────────────────────────────────
+function openCanjeConModelo(e, modeloDeseado) {
+  if (e && e.stopPropagation) e.stopPropagation();
+  openCanje();
+  if (modeloDeseado) {
+    // intentar seleccionar la opción exacta en el select
+    const sel = document.getElementById('c-quiere-sel');
+    if (sel) {
+      const opt = Array.from(sel.options).find(o => o.value === modeloDeseado || o.text === modeloDeseado);
+      if (opt) sel.value = opt.value;
+      else sel.value = '';
+    }
+  }
+}
+
+function openCanje() {
+  document.getElementById('canje-overlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeCanje(e) {
+  if (e && e.target !== document.getElementById('canje-overlay') && e.type === 'click') {
+    if (e.currentTarget === document.getElementById('canje-overlay')) {
+      if (e.target !== e.currentTarget) return;
+    }
+  }
+  document.getElementById('canje-overlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+// radios — efecto visual de selección
+document.addEventListener('change', e => {
+  if (e.target.type === 'radio' && e.target.name === 'estado') {
+    document.querySelectorAll('#c-estado-group .canje-radio').forEach(l => l.classList.remove('sel'));
+    e.target.closest('.canje-radio').classList.add('sel');
+  }
+  if (e.target.type === 'radio' && e.target.name === 'falla') {
+    document.querySelectorAll('#c-falla-group .canje-radio').forEach(l => l.classList.remove('sel'));
+    e.target.closest('.canje-radio').classList.add('sel');
+    document.getElementById('c-detalle-wrap').style.display =
+      e.target.value === 'Sí' ? 'block' : 'none';
+  }
+});
+
+function enviarCanje() {
+  const modelo   = document.getElementById('c-modelo').value;
+  const storage  = document.getElementById('c-storage').value;
+  const bat      = document.getElementById('c-bat').value;
+  const estado   = document.querySelector('input[name="estado"]:checked')?.value;
+  const falla    = document.querySelector('input[name="falla"]:checked')?.value;
+  const detalle  = document.getElementById('c-detalle').value.trim();
+  const quiere   = document.getElementById('c-quiere-sel')?.value || document.getElementById('c-quiere')?.value?.trim() || '';
+  const nombre   = document.getElementById('c-nombre').value.trim();
+
+  if (!modelo)  { showToast('Seleccioná el modelo de tu iPhone'); return; }
+  if (!storage) { showToast('Seleccioná el almacenamiento'); return; }
+  if (!estado)  { showToast('Indicá el estado del equipo'); return; }
+  if (!falla)   { showToast('Indicá si tiene fallas'); return; }
+
+  const fallaStr = falla === 'Sí'
+    ? 'Sí — ' + (detalle || 'sin especificar')
+    : 'No, funciona bien';
+
+  const msg = encodeURIComponent(
+    '🔄 *CONSULTA DE CANJE — iPhonixAr*\n\n'
+    + '━━━━━━━━━━━━━━━━━━━━\n'
+    + '📱 *Equipo a canjear:*\n'
+    + `   Modelo: ${modelo} ${storage}\n`
+    + `   Batería: ${bat}%\n`
+    + `   Estado: ${estado}\n`
+    + `   Fallas: ${fallaStr}\n`
+    + '━━━━━━━━━━━━━━━━━━━━\n'
+    + (quiere ? `🎯 *Quiere llevarse:* ${quiere}\n` : '')
+    + (nombre ? `👤 *Nombre:* ${nombre}\n` : '')
+    + '━━━━━━━━━━━━━━━━━━━━\n'
+    + '¡Hola! Vengo desde la web de iPhonixAr y quiero consultar por el Plan Canje. ¿Me podés indicar cuánto me darían por mi equipo y cómo sería el proceso?'
+  );
+
+  window.open('https://wa.me/5492235395949?text=' + msg, '_blank');
+  closeCanje();
+}
+
+// ── Supabase ──────────────────────────────────────────────────
+const SB_URL = 'https://ircyvgdxvdxkcnjtnfmn.supabase.co';
+const SB_KEY = 'sb_publishable_iakJ2dZZO8shO3_EvgMv3g_oPKvu9ck';
+const SB_HDR = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY };
+
+async function cargarProductos() {
+  try {
+    const r = await fetch(
+      SB_URL + '/rest/v1/productos?select=*&stock=gt.0&order=categoria,subcategoria,nombre',
+      { headers: SB_HDR }
+    );
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+
+    if (data && data.length > 0) {
+      // Limpiar array y recargar desde Supabase
+      PRODS.length = 0;
+      data.forEach(p => {
+        const prod = {
+          id:     p.id,
+          nombre: p.nombre,
+          desc:   p.descripcion   || '',
+          cat:    p.categoria     || 'Equipos',
+          sub:    p.subcategoria  || null,
+          modelo: p.modelo_iphone || null,
+          usd:    parseFloat(p.precio_usd) || 0,
+          stock:  parseInt(p.stock)        || 0,
+          bat:    p.bateria               || null,
+          fotos:  Array.isArray(p.fotos) ? p.fotos : (p.fotos ? [p.fotos] : []),
+        };
+        PRODS.push(prod);
+        photoIdx[String(p.id)] = 0;
+      });
+      console.log('✅ ' + PRODS.length + ' productos cargados desde Supabase');
+    }
+  } catch(e) {
+    console.warn('⚠️ Supabase no disponible, usando datos locales:', e.message);
+  }
+  renderGrid();
+}
+
+// ── Init ─────────────────────────────────────────────────────
+cargarProductos();
+renderCarrito();
+</script>
+</body>
+</html>

@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>iPhonixAr — Panel Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0e1525;--s1:#162040;--s2:#1a2540;--s3:#0d1627;
+  --cream:#ede8df;--cream2:rgba(237,232,223,.55);--cream3:rgba(237,232,223,.15);
+  --border:rgba(237,232,223,.1);--green:#34d399;--red:#f87171;--yellow:#fbbf24;
+  --blue:#60a5fa;
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+}
+body{background:var(--bg);color:var(--cream);min-height:100vh;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
+
+/* ── LOGIN ── */
+#login-screen{
+  position:fixed;inset:0;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;z-index:999;padding:1.5rem;
+}
+.login-box{
+  background:var(--s1);border:1px solid var(--border);border-radius:22px;
+  padding:2.5rem 2rem;width:min(360px,100%);text-align:center;
+}
+.login-logo{display:flex;align-items:center;justify-content:center;gap:.5rem;font-weight:800;font-size:1.2rem;margin-bottom:.4rem}
+.login-sub{font-size:.8rem;color:var(--cream2);margin-bottom:2rem}
+.login-field{margin-bottom:1rem;text-align:left}
+.login-field label{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--cream2);display:block;margin-bottom:.35rem}
+.login-field input{
+  width:100%;background:var(--s3);border:1px solid var(--border);border-radius:10px;
+  color:var(--cream);padding:.7rem .9rem;font-size:.9rem;outline:none;transition:border-color .15s;
+}
+.login-field input:focus{border-color:rgba(237,232,223,.4)}
+.login-btn{
+  width:100%;padding:.85rem;background:var(--cream);color:#0e1525;border:none;
+  border-radius:12px;font-weight:700;font-size:.95rem;cursor:pointer;margin-top:.5rem;
+  transition:background .14s;
+}
+.login-btn:hover{background:#d8d2c8}
+.login-err{font-size:.78rem;color:var(--red);margin-top:.75rem;display:none}
+
+/* ── LAYOUT ── */
+#app{display:none;min-height:100vh}
+#topbar{
+  position:fixed;top:0;left:0;right:0;height:56px;z-index:100;
+  background:rgba(13,18,37,.92);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;padding:0 1.25rem;gap:1rem;
+}
+.tb-logo{display:flex;align-items:center;gap:.4rem;font-weight:700;font-size:.95rem}
+.tb-logo em{color:var(--cream2);font-style:normal}
+.tb-right{display:flex;align-items:center;gap:.75rem}
+.tb-badge{
+  font-size:.7rem;font-weight:600;padding:.25rem .65rem;border-radius:999px;
+  background:rgba(52,211,153,.12);color:var(--green);border:1px solid rgba(52,211,153,.25);
+}
+.tb-logout{background:none;border:none;color:var(--cream2);font-size:.8rem;padding:.3rem .6rem;border-radius:8px;transition:all .15s}
+.tb-logout:hover{color:var(--cream);background:var(--border)}
+
+/* Sidebar */
+#sidebar{
+  position:fixed;top:56px;left:0;bottom:0;width:200px;
+  background:var(--s1);border-right:1px solid var(--border);
+  padding:1rem .75rem;display:flex;flex-direction:column;gap:.25rem;
+  z-index:90;
+  transition:transform .25s cubic-bezier(.22,1,.36,1);
+}
+.nav-item{
+  display:flex;align-items:center;gap:.65rem;padding:.65rem .85rem;border-radius:10px;
+  font-size:.82rem;font-weight:500;color:var(--cream2);cursor:pointer;
+  transition:all .15s;border:none;background:transparent;width:100%;text-align:left;
+}
+.nav-item:hover{background:var(--s2);color:var(--cream)}
+.nav-item.active{background:rgba(237,232,223,.1);color:var(--cream);font-weight:600}
+.nav-item svg{flex-shrink:0;opacity:.7}
+.nav-item.active svg{opacity:1}
+.nav-sep{height:1px;background:var(--border);margin:.5rem 0}
+
+/* Main content */
+#main{
+  margin-left:200px;padding-top:56px;min-height:100vh;
+}
+.page{display:none;padding:2rem 1.5rem;max-width:1100px}
+.page.active{display:block}
+.page-title{font-size:1.4rem;font-weight:800;letter-spacing:-.03em;margin-bottom:.3rem}
+.page-sub{font-size:.82rem;color:var(--cream2);margin-bottom:2rem}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;margin-bottom:2rem}
+.stat-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:1.25rem}
+.stat-num{font-size:1.8rem;font-weight:900;letter-spacing:-.04em}
+.stat-lbl{font-size:.72rem;color:var(--cream2);margin-top:.2rem}
+.stat-card.green .stat-num{color:var(--green)}
+.stat-card.red   .stat-num{color:var(--red)}
+.stat-card.yellow.stat-num{color:var(--yellow)}
+.stat-card.blue  .stat-num{color:var(--blue)}
+
+/* Toolbar */
+.toolbar{display:flex;gap:.65rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center}
+.btn{
+  display:inline-flex;align-items:center;gap:.4rem;
+  padding:.55rem 1rem;border-radius:10px;font-size:.8rem;font-weight:600;
+  border:none;cursor:pointer;transition:all .15s;white-space:nowrap;
+}
+.btn-primary{background:var(--cream);color:#0e1525}
+.btn-primary:hover{background:#d8d2c8}
+.btn-secondary{background:var(--s2);color:var(--cream);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--s1);border-color:rgba(237,232,223,.25)}
+.btn-danger{background:rgba(248,113,113,.12);color:var(--red);border:1px solid rgba(248,113,113,.2)}
+.btn-danger:hover{background:rgba(248,113,113,.2)}
+.btn-success{background:rgba(52,211,153,.1);color:var(--green);border:1px solid rgba(52,211,153,.2)}
+.search-bar{
+  flex:1;min-width:180px;background:var(--s2);border:1px solid var(--border);
+  border-radius:10px;color:var(--cream);padding:.55rem .9rem;font-size:.82rem;outline:none;
+  transition:border-color .15s;
+}
+.search-bar:focus{border-color:rgba(237,232,223,.3)}
+.search-bar::placeholder{color:var(--cream2)}
+
+/* Tabla productos */
+.table-wrap{background:var(--s1);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.table-wrap table{width:100%;border-collapse:collapse}
+.table-wrap th{
+  font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--cream2);padding:.85rem 1rem;text-align:left;
+  border-bottom:1px solid var(--border);background:rgba(237,232,223,.03);
+  white-space:nowrap;
+}
+.table-wrap td{
+  padding:.75rem 1rem;font-size:.82rem;border-bottom:1px solid rgba(237,232,223,.05);
+  vertical-align:middle;
+}
+.table-wrap tr:last-child td{border-bottom:none}
+.table-wrap tr:hover td{background:rgba(237,232,223,.025)}
+.td-nombre{font-weight:600;max-width:180px}
+.td-nombre small{display:block;font-size:.7rem;color:var(--cream2);font-weight:400;margin-top:.1rem}
+.badge{display:inline-block;padding:.18rem .55rem;border-radius:999px;font-size:.62rem;font-weight:700;letter-spacing:.06em}
+.badge-sellado{background:rgba(237,232,223,.12);color:var(--cream)}
+.badge-usado{background:rgba(96,165,250,.1);color:var(--blue)}
+.badge-funda{background:rgba(167,139,250,.1);color:#a78bfa}
+.badge-cargador{background:rgba(251,191,36,.1);color:var(--yellow)}
+.stock-ok{color:var(--green);font-weight:600}
+.stock-low{color:var(--yellow);font-weight:600}
+.stock-out{color:var(--red);font-weight:600}
+.td-fotos{display:flex;gap:.3rem;align-items:center}
+.foto-thumb{width:32px;height:32px;border-radius:6px;object-fit:cover;border:1px solid var(--border)}
+.foto-count{font-size:.68rem;color:var(--cream2)}
+.td-actions{display:flex;gap:.35rem}
+.act-btn{
+  padding:.35rem .6rem;border-radius:7px;font-size:.72rem;font-weight:600;
+  border:none;cursor:pointer;transition:all .12s;
+}
+.act-edit{background:rgba(96,165,250,.1);color:var(--blue)}
+.act-edit:hover{background:rgba(96,165,250,.2)}
+.act-del{background:rgba(248,113,113,.1);color:var(--red)}
+.act-del:hover{background:rgba(248,113,113,.2)}
+.act-stock{background:rgba(52,211,153,.1);color:var(--green)}
+.act-stock:hover{background:rgba(52,211,153,.2)}
+
+/* Modal producto */
+#prod-modal-overlay{
+  display:none;position:fixed;inset:0;background:rgba(8,14,28,.88);
+  backdrop-filter:blur(5px);z-index:300;align-items:flex-start;justify-content:center;
+  padding:1rem;overflow-y:auto;
+}
+#prod-modal-overlay.show{display:flex}
+#prod-modal{
+  background:var(--s1);border:1px solid var(--border);border-radius:20px;
+  width:min(680px,100%);margin:auto;padding:2rem;
+  animation:fadeUp .28s both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+.modal-header h3{font-size:1.1rem;font-weight:700}
+.mclose{background:rgba(237,232,223,.08);border:none;color:var(--cream);width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.mclose:hover{background:rgba(237,232,223,.15)}
+
+/* Form */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.form-grid.cols3{grid-template-columns:1fr 1fr 1fr}
+.span2{grid-column:1/-1}
+.field{display:flex;flex-direction:column;gap:.35rem}
+.field label{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--cream2)}
+.field input,.field select,.field textarea{
+  background:var(--s3);border:1px solid var(--border);border-radius:10px;
+  color:var(--cream);padding:.65rem .85rem;font-size:.85rem;outline:none;
+  transition:border-color .15s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:rgba(237,232,223,.35)}
+.field select option{background:var(--s1)}
+.field textarea{resize:vertical;min-height:72px}
+.field input[type=number]{-moz-appearance:textfield}
+.required::after{content:' *';color:var(--red)}
+
+/* Upload fotos */
+.fotos-section{margin-top:.25rem}
+.fotos-grid{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.75rem}
+.foto-item{position:relative;width:70px;height:70px;border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.foto-item img{width:100%;height:100%;object-fit:cover}
+.foto-del{
+  position:absolute;top:2px;right:2px;
+  background:rgba(0,0,0,.7);border:none;color:#fff;
+  width:18px;height:18px;border-radius:50%;font-size:.6rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.foto-add{
+  width:70px;height:70px;border-radius:10px;
+  border:2px dashed var(--border);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;transition:border-color .15s;color:var(--cream2);font-size:.62rem;gap:.25rem;
+  background:transparent;
+}
+.foto-add:hover{border-color:rgba(237,232,223,.35);color:var(--cream)}
+.foto-url-input{
+  width:100%;background:var(--s3);border:1px solid var(--border);border-radius:8px;
+  color:var(--cream);padding:.5rem .75rem;font-size:.78rem;outline:none;
+  transition:border-color .15s;margin-bottom:.4rem;
+}
+.foto-url-input:focus{border-color:rgba(237,232,223,.35)}
+.foto-url-input::placeholder{color:var(--cream2)}
+
+/* Stock modal */
+#stock-modal-overlay{
+  display:none;position:fixed;inset:0;background:rgba(8,14,28,.88);
+  backdrop-filter:blur(5px);z-index:300;align-items:center;justify-content:center;padding:1rem;
+}
+#stock-modal-overlay.show{display:flex}
+#stock-modal{
+  background:var(--s1);border:1px solid var(--border);border-radius:20px;
+  width:min(360px,100%);padding:1.75rem;animation:fadeUp .25s both;
+}
+.stock-controls{display:flex;align-items:center;gap:1rem;justify-content:center;margin:1.25rem 0}
+.stock-btn{
+  width:42px;height:42px;border-radius:50%;border:none;font-size:1.3rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-weight:700;transition:all .12s;
+}
+.stock-dec{background:rgba(248,113,113,.15);color:var(--red)}
+.stock-dec:hover{background:rgba(248,113,113,.3)}
+.stock-inc{background:rgba(52,211,153,.15);color:var(--green)}
+.stock-inc:hover{background:rgba(52,211,153,.3)}
+#stock-val{font-size:2rem;font-weight:900;min-width:60px;text-align:center}
+
+/* Toast */
+#toast{
+  position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);
+  border-radius:999px;padding:.55rem 1.25rem;font-size:.8rem;font-weight:600;
+  white-space:nowrap;z-index:500;pointer-events:none;opacity:0;
+  transition:opacity .25s;display:flex;align-items:center;gap:.5rem;
+}
+#toast.show{opacity:1}
+#toast.ok {background:rgba(52,211,153,.15);border:1px solid rgba(52,211,153,.3);color:var(--green)}
+#toast.err{background:rgba(248,113,113,.15);border:1px solid rgba(248,113,113,.3);color:var(--red)}
+#toast.info{background:rgba(237,232,223,.1);border:1px solid var(--border);color:var(--cream)}
+
+/* Loading */
+.loading-row td{text-align:center;padding:3rem;color:var(--cream2)}
+.spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--cream);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Responsive */
+@media(max-width:768px){
+  #sidebar{transform:translateX(-100%)}
+  #sidebar.open{transform:none}
+  #main{margin-left:0}
+  .form-grid{grid-template-columns:1fr}
+  .form-grid.cols3{grid-template-columns:1fr 1fr}
+  #menu-toggle{display:flex}
+}
+#menu-toggle{
+  display:none;background:none;border:none;color:var(--cream);
+  flex-direction:column;gap:4px;padding:.3rem;cursor:pointer;
+}
+#menu-toggle span{display:block;width:20px;height:2px;background:currentColor;border-radius:1px}
+#sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:89}
+
+/* Empty state */
+.empty-state{text-align:center;padding:4rem 1rem;color:var(--cream2)}
+.empty-state svg{opacity:.3;margin-bottom:1rem}
+.empty-state p{font-size:.88rem}
+
+/* Confirm dialog */
+#confirm-overlay{
+  display:none;position:fixed;inset:0;background:rgba(8,14,28,.88);
+  backdrop-filter:blur(4px);z-index:400;align-items:center;justify-content:center;padding:1rem;
+}
+#confirm-overlay.show{display:flex}
+#confirm-box{
+  background:var(--s1);border:1px solid var(--border);border-radius:18px;
+  padding:1.75rem;width:min(320px,100%);text-align:center;animation:fadeUp .2s both;
+}
+#confirm-box h4{font-size:1rem;font-weight:700;margin-bottom:.5rem}
+#confirm-box p{font-size:.82rem;color:var(--cream2);margin-bottom:1.5rem;line-height:1.5}
+.confirm-btns{display:flex;gap:.65rem}
+.confirm-btns button{flex:1;padding:.75rem;border-radius:10px;font-weight:600;font-size:.85rem;border:none;cursor:pointer}
+.confirm-cancel{background:var(--s2);color:var(--cream)}
+.confirm-ok{background:var(--red);color:#fff}
+
+/* Bat slider */
+input[type=range]{accent-color:var(--cream);cursor:pointer;width:100%}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      iPhonix<em>Ar</em> Admin
+    </div>
+    <p class="login-sub">Panel de gestión de la tienda</p>
+    <div class="login-field">
+      <label>Usuario</label>
+      <input type="text" id="l-user" placeholder="admin" autocomplete="username"/>
+    </div>
+    <div class="login-field">
+      <label>Contraseña</label>
+      <input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter') doLogin()"/>
+    </div>
+    <button class="login-btn" onclick="doLogin()">Ingresar</button>
+    <p class="login-err" id="l-err">Usuario o contraseña incorrectos</p>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app">
+
+  <!-- Topbar -->
+  <div id="topbar">
+    <div style="display:flex;align-items:center;gap:.75rem">
+      <button id="menu-toggle" onclick="toggleSidebar()">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="tb-logo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        iPhonix<em>Ar</em>
+      </div>
+    </div>
+    <div class="tb-right">
+      <span class="tb-badge" id="tb-count">— productos</span>
+      <a href="https://iphonixar.com.ar" target="_blank" class="btn btn-secondary" style="font-size:.75rem;padding:.35rem .75rem">Ver tienda ↗</a>
+      <button class="tb-logout" onclick="logout()">Salir</button>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
+  <nav id="sidebar">
+    <button class="nav-item active" data-page="dashboard" onclick="goPage('dashboard',this)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </button>
+    <button class="nav-item" data-page="productos" onclick="goPage('productos',this)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
+      Productos
+    </button>
+    <div class="nav-sep"></div>
+    <button class="nav-item" data-page="nuevo" onclick="goPage('nuevo',this);abrirNuevo()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nuevo producto
+    </button>
+  </nav>
+
+  <!-- ══ DASHBOARD ══ -->
+  <main id="main">
+    <div class="page active" id="page-dashboard">
+      <h1 class="page-title">Dashboard</h1>
+      <p class="page-sub">Resumen de tu tienda</p>
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card blue"><div class="stat-num" id="st-total">—</div><div class="stat-lbl">Total productos</div></div>
+        <div class="stat-card green"><div class="stat-num" id="st-stock">—</div><div class="stat-lbl">Con stock</div></div>
+        <div class="stat-card red"><div class="stat-num" id="st-sin">—</div><div class="stat-lbl">Sin stock</div></div>
+        <div class="stat-card yellow"><div class="stat-num" id="st-low">—</div><div class="stat-lbl">Stock bajo (≤2)</div></div>
+      </div>
+
+      <!-- Tabla resumen stock bajo -->
+      <h2 style="font-size:1rem;font-weight:700;margin-bottom:1rem;color:rgba(237,232,223,.7)">⚠️ Stock bajo — requieren atención</h2>
+      <div class="table-wrap" id="low-stock-table">
+        <table>
+          <thead><tr>
+            <th>Producto</th><th>Categoría</th><th>Stock</th><th>Precio USD</th><th>Acción</th>
+          </tr></thead>
+          <tbody id="low-tbody"><tr class="loading-row"><td colspan="5"><div class="spinner"></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ PRODUCTOS ══ -->
+    <div class="page" id="page-productos">
+      <h1 class="page-title">Productos</h1>
+      <p class="page-sub">Gestioná el catálogo completo de la tienda</p>
+
+      <div class="toolbar">
+        <button class="btn btn-primary" onclick="abrirNuevo()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nuevo producto
+        </button>
+        <input class="search-bar" type="text" id="prod-search" placeholder="Buscar por nombre o modelo…" oninput="filtrarTabla()"/>
+        <select class="search-bar" id="filtro-cat" style="flex:0;min-width:140px" onchange="filtrarTabla()">
+          <option value="">Todas las categorías</option>
+          <option>Equipos</option><option>Fundas</option><option>Cargadores</option>
+        </select>
+        <button class="btn btn-secondary" onclick="cargarProductos()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+          Actualizar
+        </button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Producto</th><th>Categoría</th><th>Precio USD</th>
+            <th>Batería</th><th>Stock</th><th>Fotos</th><th>Acciones</th>
+          </tr></thead>
+          <tbody id="prod-tbody"><tr class="loading-row"><td colspan="7"><div class="spinner"></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Página vacía para "Nuevo" (solo abre el modal) -->
+    <div class="page" id="page-nuevo"></div>
+  </main>
+</div>
+
+<!-- ══ MODAL PRODUCTO ══ -->
+<div id="prod-modal-overlay">
+  <div id="prod-modal">
+    <div class="modal-header">
+      <h3 id="modal-title">Nuevo producto</h3>
+      <button class="mclose" onclick="cerrarModal()">✕</button>
+    </div>
+
+    <div class="form-grid">
+      <!-- Nombre -->
+      <div class="field span2">
+        <label class="required">Nombre del producto</label>
+        <input type="text" id="f-nombre" placeholder="ej: iPhone 16 Pro 128GB"/>
+      </div>
+      <!-- Descripción -->
+      <div class="field span2">
+        <label>Descripción</label>
+        <textarea id="f-desc" placeholder="Descripción breve del producto…"></textarea>
+      </div>
+      <!-- Categoría -->
+      <div class="field">
+        <label class="required">Categoría</label>
+        <select id="f-cat" onchange="actualizarSubcat()">
+          <option value="">— Seleccioná —</option>
+          <option>Equipos</option><option>Fundas</option><option>Cargadores</option>
+        </select>
+      </div>
+      <!-- Subcategoría -->
+      <div class="field" id="f-subcat-wrap">
+        <label>Subcategoría</label>
+        <select id="f-subcat">
+          <option value="">— Ninguna —</option>
+          <option>Sellados</option><option>Usados</option>
+        </select>
+      </div>
+      <!-- Modelo iPhone -->
+      <div class="field" id="f-modelo-wrap">
+        <label>Modelo iPhone</label>
+        <select id="f-modelo">
+          <option value="">— Seleccioná —</option>
+          <optgroup label="iPhone 17"><option>iPhone 17 Pro Max</option><option>iPhone 17 Pro</option><option>iPhone 17 Air</option><option>iPhone 17</option></optgroup>
+          <optgroup label="iPhone 16"><option>iPhone 16 Pro Max</option><option>iPhone 16 Pro</option><option>iPhone 16</option></optgroup>
+          <optgroup label="iPhone 15"><option>iPhone 15 Pro Max</option><option>iPhone 15 Pro</option><option>iPhone 15</option></optgroup>
+          <optgroup label="iPhone 14"><option>iPhone 14 Pro Max</option><option>iPhone 14 Pro</option><option>iPhone 14</option></optgroup>
+          <optgroup label="iPhone 13"><option>iPhone 13 Pro Max</option><option>iPhone 13 Pro</option><option>iPhone 13</option></optgroup>
+          <optgroup label="iPhone 12"><option>iPhone 12 Pro Max</option><option>iPhone 12 Pro</option><option>iPhone 12</option></optgroup>
+          <optgroup label="iPhone 11"><option>iPhone 11 Pro Max</option><option>iPhone 11 Pro</option><option>iPhone 11</option></optgroup>
+        </select>
+      </div>
+      <!-- Precio USD -->
+      <div class="field">
+        <label class="required">Precio (USD)</label>
+        <input type="number" id="f-precio" placeholder="0" min="0" step="0.01"/>
+      </div>
+      <!-- Stock -->
+      <div class="field">
+        <label class="required">Stock</label>
+        <input type="number" id="f-stock" placeholder="0" min="0"/>
+      </div>
+      <!-- Batería (solo usados) -->
+      <div class="field span2" id="f-bat-wrap" style="display:none">
+        <label>Batería &nbsp;<span id="f-bat-disp" style="color:var(--cream);font-weight:700">85%</span></label>
+        <input type="range" id="f-bat" min="50" max="100" value="85"
+          oninput="document.getElementById('f-bat-disp').textContent=this.value+'%'"/>
+      </div>
+    </div>
+
+    <!-- Fotos -->
+    <div style="margin-top:1.25rem">
+      <div style="font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--cream2);margin-bottom:.6rem">
+        Fotos del producto
+      </div>
+      <div class="fotos-grid" id="fotos-preview"></div>
+      <input type="text" class="foto-url-input" id="foto-url-input"
+        placeholder="Pegá una URL de imagen (imgur, imgbb, etc.) y presioná Enter"
+        onkeydown="if(event.key==='Enter'){agregarFotoUrl();event.preventDefault()}"/>
+      <button class="btn btn-secondary" onclick="agregarFotoUrl()" style="font-size:.75rem;padding:.42rem .8rem">
+        + Agregar URL
+      </button>
+      <p style="font-size:.68rem;color:var(--cream2);margin-top:.5rem">
+        💡 Subí tus fotos en <strong>imgbb.com</strong> o <strong>imgur.com</strong> y pegá el link directo aquí
+      </p>
+    </div>
+
+    <div style="display:flex;gap:.75rem;margin-top:1.75rem;justify-content:flex-end">
+      <button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn btn-primary" id="modal-save-btn" onclick="guardarProducto()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL STOCK ══ -->
+<div id="stock-modal-overlay">
+  <div id="stock-modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+      <h3 style="font-size:1rem;font-weight:700">Actualizar stock</h3>
+      <button class="mclose" onclick="cerrarStockModal()">✕</button>
+    </div>
+    <p id="stock-prod-name" style="font-size:.82rem;color:var(--cream2);margin-bottom:.25rem"></p>
+    <div class="stock-controls">
+      <button class="stock-btn stock-dec" onclick="cambiarStock(-1)">−</button>
+      <span id="stock-val">0</span>
+      <button class="stock-btn stock-inc" onclick="cambiarStock(1)">+</button>
+    </div>
+    <div style="display:flex;gap:.65rem">
+      <button class="btn btn-secondary" style="flex:1" onclick="cerrarStockModal()">Cancelar</button>
+      <button class="btn btn-success" style="flex:1" onclick="guardarStock()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONFIRM ══ -->
+<div id="confirm-overlay">
+  <div id="confirm-box">
+    <h4 id="confirm-title">¿Confirmar acción?</h4>
+    <p id="confirm-msg"></p>
+    <div class="confirm-btns">
+      <button class="confirm-cancel" onclick="cerrarConfirm()">Cancelar</button>
+      <button class="confirm-ok" id="confirm-ok-btn">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════════════════════════
+const SB_URL = 'https://ircyvgdxvdxkcnjtnfmn.supabase.co';
+const SB_KEY = 'sb_publishable_iakJ2dZZO8shO3_EvgMv3g_oPKvu9ck';
+const H = {
+  'apikey': SB_KEY,
+  'Authorization': 'Bearer ' + SB_KEY,
+  'Content-Type': 'application/json',
+  'Prefer': 'return=representation',
+};
+
+// Contraseña del admin (cambiala por la tuya)
+const ADMIN_USER = 'admin';
+const ADMIN_PASS = 'iphonixar2025';
+
+// ══════════════════════════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════════════════════════
+let authed = false;
+
+function doLogin() {
+  const u = document.getElementById('l-user').value.trim();
+  const p = document.getElementById('l-pass').value;
+  if (u === ADMIN_USER && p === ADMIN_PASS) {
+    authed = true;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    init();
+  } else {
+    document.getElementById('l-err').style.display = 'block';
+    document.getElementById('l-pass').value = '';
+  }
+}
+
+function logout() {
+  authed = false;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('l-pass').value = '';
+  document.getElementById('l-err').style.display = 'none';
+}
+
+document.getElementById('l-user').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('l-pass').focus(); });
+
+// ══════════════════════════════════════════════════════════════════
+// NAVEGACIÓN
+// ══════════════════════════════════════════════════════════════════
+function goPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  const pg = document.getElementById('page-' + name);
+  if (pg) pg.classList.add('active');
+  if (btn) btn.classList.add('active');
+  // cerrar sidebar en mobile
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').style.display = 'none';
+}
+
+function toggleSidebar() {
+  const s = document.getElementById('sidebar');
+  const ov = document.getElementById('sidebar-overlay');
+  const open = s.classList.toggle('open');
+  ov.style.display = open ? 'block' : 'none';
+}
+
+// ══════════════════════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════════════════════
+let toastTimer;
+function showToast(msg, type='ok') {
+  const t = document.getElementById('toast');
+  t.textContent = (type==='ok'?'✓ ':type==='err'?'✕ ':'ℹ ') + msg;
+  t.className = 'show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = '', 3000);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// CONFIRM DIALOG
+// ══════════════════════════════════════════════════════════════════
+let confirmCb = null;
+function mostrarConfirm(title, msg, cb) {
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-msg').textContent = msg;
+  confirmCb = cb;
+  document.getElementById('confirm-overlay').classList.add('show');
+}
+function cerrarConfirm() { document.getElementById('confirm-overlay').classList.remove('show'); confirmCb = null; }
+document.getElementById('confirm-ok-btn').onclick = () => { cerrarConfirm(); if(confirmCb) confirmCb(); };
+
+// ══════════════════════════════════════════════════════════════════
+// DATOS
+// ══════════════════════════════════════════════════════════════════
+let todosProds = [];
+let prodsFiltrados = [];
+
+async function cargarProductos() {
+  mostrarCargando('prod-tbody', 7);
+  try {
+    const r = await fetch(SB_URL + '/rest/v1/productos?select=*&order=categoria,nombre', { headers: H });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    todosProds = await r.json();
+    filtrarTabla();
+    actualizarStats();
+    actualizarStockBajo();
+    document.getElementById('tb-count').textContent = todosProds.length + ' productos';
+  } catch(e) {
+    showToast('Error al cargar productos: ' + e.message, 'err');
+    document.getElementById('prod-tbody').innerHTML = `<tr class="loading-row"><td colspan="7" style="color:var(--red)">Error de conexión con Supabase</td></tr>`;
+  }
+}
+
+function actualizarStats() {
+  const total  = todosProds.length;
+  const conSt  = todosProds.filter(p => p.stock > 0).length;
+  const sinSt  = todosProds.filter(p => p.stock === 0).length;
+  const lowSt  = todosProds.filter(p => p.stock > 0 && p.stock <= 2).length;
+  document.getElementById('st-total').textContent = total;
+  document.getElementById('st-stock').textContent = conSt;
+  document.getElementById('st-sin').textContent   = sinSt;
+  document.getElementById('st-low').textContent   = lowSt;
+}
+
+function actualizarStockBajo() {
+  const bajos = todosProds.filter(p => p.stock <= 2);
+  const tbody = document.getElementById('low-tbody');
+  if (!bajos.length) {
+    tbody.innerHTML = `<tr class="loading-row"><td colspan="5">✅ Todo el stock está en orden</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = bajos.map(p => `
+    <tr>
+      <td class="td-nombre">${p.nombre}<small>${p.modelo_iphone||''}</small></td>
+      <td>${badgeCat(p)}</td>
+      <td class="${p.stock===0?'stock-out':'stock-low'}">${p.stock===0?'Sin stock':p.stock+' ud.'}</td>
+      <td>USD ${p.precio_usd}</td>
+      <td><button class="act-btn act-stock" onclick="abrirStock('${p.id}','${p.nombre.replace(/'/g,"\\'")}',${p.stock})">Actualizar</button></td>
+    </tr>`).join('');
+}
+
+function filtrarTabla() {
+  const q    = (document.getElementById('prod-search')?.value||'').toLowerCase();
+  const cat  = document.getElementById('filtro-cat')?.value||'';
+  prodsFiltrados = todosProds.filter(p => {
+    const matchQ = !q || p.nombre.toLowerCase().includes(q) || (p.modelo_iphone||'').toLowerCase().includes(q);
+    const matchC = !cat || p.categoria === cat;
+    return matchQ && matchC;
+  });
+  renderTabla();
+}
+
+function renderTabla() {
+  const tbody = document.getElementById('prod-tbody');
+  if (!prodsFiltrados.length) {
+    tbody.innerHTML = `<tr class="loading-row"><td colspan="7">No se encontraron productos</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = prodsFiltrados.map(p => {
+    const fotos = Array.isArray(p.fotos) ? p.fotos : (p.fotos ? [p.fotos] : []);
+    const fotosHtml = fotos.length
+      ? `<div class="td-fotos">${fotos.slice(0,3).map(f=>`<img src="${f}" class="foto-thumb" onerror="this.style.display='none'"/>`).join('')}${fotos.length>3?`<span class="foto-count">+${fotos.length-3}</span>`:''}</div>`
+      : '<span style="color:var(--cream2);font-size:.72rem">Sin fotos</span>';
+    const batHtml = p.bateria ? `<span style="font-weight:600;color:${p.bateria>=85?'var(--green)':p.bateria>=70?'var(--yellow)':'var(--red)'}">${p.bateria}%</span>` : '—';
+    const stClass = p.stock===0?'stock-out':p.stock<=2?'stock-low':'stock-ok';
+    return `<tr>
+      <td class="td-nombre">${p.nombre}<small>${p.modelo_iphone||''}</small></td>
+      <td>${badgeCat(p)}</td>
+      <td style="font-weight:700">$${p.precio_usd}</td>
+      <td>${batHtml}</td>
+      <td><span class="${stClass}">${p.stock}</span></td>
+      <td>${fotosHtml}</td>
+      <td><div class="td-actions">
+        <button class="act-btn act-edit"  onclick="abrirEditar('${p.id}')">Editar</button>
+        <button class="act-btn act-stock" onclick="abrirStock('${p.id}','${p.nombre.replace(/'/g,"\\'")}',${p.stock})">Stock</button>
+        <button class="act-btn act-del"   onclick="eliminar('${p.id}','${p.nombre.replace(/'/g,"\\'")}')">Borrar</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function badgeCat(p) {
+  if (p.categoria==='Equipos' && p.subcategoria==='Sellados') return '<span class="badge badge-sellado">Sellado</span>';
+  if (p.categoria==='Equipos' && p.subcategoria==='Usados')   return '<span class="badge badge-usado">Usado</span>';
+  if (p.categoria==='Fundas')    return '<span class="badge badge-funda">Funda</span>';
+  if (p.categoria==='Cargadores') return '<span class="badge badge-cargador">Cargador</span>';
+  return '<span class="badge">' + (p.categoria||'') + '</span>';
+}
+
+function mostrarCargando(tbodyId, cols) {
+  document.getElementById(tbodyId).innerHTML =
+    `<tr class="loading-row"><td colspan="${cols}"><div class="spinner"></div></td></tr>`;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// MODAL NUEVO / EDITAR
+// ══════════════════════════════════════════════════════════════════
+let editingId = null;
+let fotosActuales = [];
+
+function abrirNuevo() {
+  editingId = null;
+  fotosActuales = [];
+  document.getElementById('modal-title').textContent = 'Nuevo producto';
+  document.getElementById('modal-save-btn').textContent = 'Crear producto';
+  limpiarForm();
+  renderFotosPreview();
+  document.getElementById('prod-modal-overlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+  goPage('productos', document.querySelector('[data-page="productos"]'));
+}
+
+function abrirEditar(id) {
+  const p = todosProds.find(x => String(x.id) === String(id));
+  if (!p) return;
+  editingId = id;
+  fotosActuales = Array.isArray(p.fotos) ? [...p.fotos] : (p.fotos ? [p.fotos] : []);
+
+  document.getElementById('modal-title').textContent = 'Editar producto';
+  document.getElementById('modal-save-btn').textContent = 'Guardar cambios';
+
+  document.getElementById('f-nombre').value  = p.nombre       || '';
+  document.getElementById('f-desc').value    = p.descripcion  || '';
+  document.getElementById('f-cat').value     = p.categoria    || '';
+  document.getElementById('f-subcat').value  = p.subcategoria || '';
+  document.getElementById('f-modelo').value  = p.modelo_iphone|| '';
+  document.getElementById('f-precio').value  = p.precio_usd   || '';
+  document.getElementById('f-stock').value   = p.stock        || 0;
+
+  if (p.bateria) {
+    document.getElementById('f-bat').value = p.bateria;
+    document.getElementById('f-bat-disp').textContent = p.bateria + '%';
+  }
+
+  actualizarSubcat();
+  renderFotosPreview();
+  document.getElementById('prod-modal-overlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function cerrarModal() {
+  document.getElementById('prod-modal-overlay').classList.remove('show');
+  document.body.style.overflow = '';
+  editingId = null;
+}
+
+function limpiarForm() {
+  ['f-nombre','f-desc','f-precio','f-stock'].forEach(id => document.getElementById(id).value = '');
+  ['f-cat','f-subcat','f-modelo'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-bat').value = 85;
+  document.getElementById('f-bat-disp').textContent = '85%';
+  actualizarSubcat();
+}
+
+function actualizarSubcat() {
+  const cat = document.getElementById('f-cat').value;
+  document.getElementById('f-subcat-wrap').style.display = cat==='Equipos' ? 'flex' : 'none';
+  document.getElementById('f-modelo-wrap').style.display = (cat==='Equipos'||cat==='Fundas') ? 'flex' : 'none';
+  // mostrar batería solo para usados
+  const sub = document.getElementById('f-subcat').value;
+  document.getElementById('f-bat-wrap').style.display =
+    (cat==='Equipos' && sub==='Usados') ? 'flex' : 'none';
+}
+// detectar cambio de subcategoría también
+document.getElementById('f-subcat').addEventListener('change', actualizarSubcat);
+
+// Fotos
+function renderFotosPreview() {
+  const c = document.getElementById('fotos-preview');
+  c.innerHTML = fotosActuales.map((url, i) => `
+    <div class="foto-item">
+      <img src="${url}" onerror="this.src='data:image/svg+xml,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'70\\' height=\\'70\\'><rect fill=\\'%231a2540\\' width=\\'70\\' height=\\'70\\'></rect></svg>'"/>
+      <button class="foto-del" onclick="eliminarFoto(${i})">✕</button>
+    </div>`).join('') +
+    `<button class="foto-add" onclick="document.getElementById('foto-url-input').focus()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span>Agregar</span>
+    </button>`;
+}
+
+function agregarFotoUrl() {
+  const inp = document.getElementById('foto-url-input');
+  const url = inp.value.trim();
+  if (!url) return;
+  if (!url.startsWith('http')) { showToast('La URL debe empezar con http', 'err'); return; }
+  fotosActuales.push(url);
+  inp.value = '';
+  renderFotosPreview();
+}
+
+function eliminarFoto(i) {
+  fotosActuales.splice(i, 1);
+  renderFotosPreview();
+}
+
+// Guardar
+async function guardarProducto() {
+  const nombre  = document.getElementById('f-nombre').value.trim();
+  const cat     = document.getElementById('f-cat').value;
+  const precio  = parseFloat(document.getElementById('f-precio').value);
+  const stock   = parseInt(document.getElementById('f-stock').value);
+
+  if (!nombre)         { showToast('El nombre es obligatorio', 'err'); return; }
+  if (!cat)            { showToast('Seleccioná una categoría', 'err'); return; }
+  if (isNaN(precio))   { showToast('El precio es obligatorio', 'err'); return; }
+  if (isNaN(stock))    { showToast('El stock es obligatorio', 'err'); return; }
+
+  const sub    = document.getElementById('f-subcat').value || null;
+  const modelo = document.getElementById('f-modelo').value || null;
+  const desc   = document.getElementById('f-desc').value.trim() || null;
+  const bat    = (cat==='Equipos' && sub==='Usados')
+    ? parseInt(document.getElementById('f-bat').value) : null;
+
+  const payload = {
+    nombre, descripcion: desc, categoria: cat,
+    subcategoria: sub, modelo_iphone: modelo,
+    precio_usd: precio, stock, bateria: bat,
+    fotos: fotosActuales.length ? fotosActuales : null,
+  };
+
+  const btn = document.getElementById('modal-save-btn');
+  btn.disabled = true; btn.textContent = 'Guardando…';
+
+  try {
+    let r;
+    if (editingId) {
+      r = await fetch(SB_URL + '/rest/v1/productos?id=eq.' + editingId, {
+        method: 'PATCH', headers: H, body: JSON.stringify(payload)
+      });
+    } else {
+      r = await fetch(SB_URL + '/rest/v1/productos', {
+        method: 'POST', headers: H, body: JSON.stringify(payload)
+      });
+    }
+    if (!r.ok) {
+      const err = await r.json();
+      throw new Error(err.message || 'HTTP ' + r.status);
+    }
+    showToast(editingId ? 'Producto actualizado ✓' : 'Producto creado ✓', 'ok');
+    cerrarModal();
+    await cargarProductos();
+  } catch(e) {
+    showToast('Error: ' + e.message, 'err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = editingId ? 'Guardar cambios' : 'Crear producto';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// STOCK RÁPIDO
+// ══════════════════════════════════════════════════════════════════
+let stockEditId = null;
+let stockEditVal = 0;
+
+function abrirStock(id, nombre, stockActual) {
+  stockEditId  = String(id);
+  stockEditVal = stockActual;
+  document.getElementById('stock-prod-name').textContent = nombre;
+  document.getElementById('stock-val').textContent = stockActual;
+  document.getElementById('stock-modal-overlay').classList.add('show');
+}
+
+function cerrarStockModal() {
+  document.getElementById('stock-modal-overlay').classList.remove('show');
+  stockEditId = null;
+}
+
+function cambiarStock(d) {
+  stockEditVal = Math.max(0, stockEditVal + d);
+  document.getElementById('stock-val').textContent = stockEditVal;
+}
+
+async function guardarStock() {
+  if (!stockEditId) return;
+  try {
+    const r = await fetch(SB_URL + '/rest/v1/productos?id=eq.' + stockEditId, {
+      method: 'PATCH', headers: H,
+      body: JSON.stringify({ stock: stockEditVal })
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    showToast('Stock actualizado a ' + stockEditVal + ' ud.', 'ok');
+    cerrarStockModal();
+    await cargarProductos();
+  } catch(e) {
+    showToast('Error: ' + e.message, 'err');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// ELIMINAR
+// ══════════════════════════════════════════════════════════════════
+function eliminar(id, nombre) {
+  id = String(id);
+  mostrarConfirm(
+    'Eliminar producto',
+    `¿Estás seguro de eliminar "${nombre}"? Esta acción no se puede deshacer.`,
+    async () => {
+      try {
+        const r = await fetch(SB_URL + '/rest/v1/productos?id=eq.' + id, {
+          method: 'DELETE', headers: H
+        });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        showToast('Producto eliminado', 'ok');
+        await cargarProductos();
+      } catch(e) {
+        showToast('Error: ' + e.message, 'err');
+      }
+    }
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SQL — crear tabla si no existe
+// ══════════════════════════════════════════════════════════════════
+async function crearTablasSiNoExisten() {
+  // Intentamos crear la tabla via RPC o directamente
+  // Si ya existe, el error es ignorado
+  try {
+    const r = await fetch(SB_URL + '/rest/v1/productos?limit=0', { headers: H });
+    if (r.status === 404 || r.status === 400) {
+      showToast('La tabla "productos" no existe en Supabase. Ejecutá el SQL del schema.', 'err');
+    }
+  } catch(e) {}
+}
+
+// ══════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════
+async function init() {
+  await crearTablasSiNoExisten();
+  await cargarProductos();
+}
+
+// Cerrar modales con Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    cerrarModal();
+    cerrarStockModal();
+    cerrarConfirm();
+  }
+});
+</script>
+</body>
+</html>
