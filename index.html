@@ -107,55 +107,39 @@ h1 span{color:rgba(237,232,223,.3)}
 .hero-phones{
   position:relative;z-index:1;
   display:flex;align-items:flex-end;justify-content:center;
-  gap:1.2rem;margin-top:3.5rem;
-  height:260px;
+  gap:0rem;margin-top:3rem;
+  height:280px;
 }
 .hero-phone{
   flex-shrink:0;
   position:relative;
   display:block;
 }
-/* Contenedor SVG del iPhone — silueta física */
-.iphone-svg-wrap{
-  position:relative;
-  display:block;
-}
-.iphone-svg-wrap svg{
+.hero-phone img{
   display:block;
   width:100%;
   height:100%;
+  object-fit:contain;
   filter:drop-shadow(0 30px 60px rgba(0,0,0,.75));
-}
-/* La imagen que se "mete" dentro de la pantalla */
-.iphone-screen-img{
-  position:absolute;
-  /* coordenadas relativas al SVG 200×400 mapeadas a % */
-  /* pantalla empieza aprox en x=14,y=54 y termina x=186,y=346 */
-  left:7%;
-  top:13.5%;
-  width:86%;
-  height:73%;
-  object-fit:cover;
-  border-radius:6px;
-  display:block;
-  pointer-events:none;
-  z-index:1;
 }
 
 .hp-left{
-  width:90px;height:180px;
-  transform:rotate(-6deg) translateY(14px);
-  opacity:.75;
+  width:160px;height:220px;
+  transform:rotate(-6deg) translateX(20px) translateY(20px);
+  opacity:.8;
+  z-index:1;
 }
 .hp-center{
-  width:115px;height:230px;
+  width:200px;height:280px;
   transform:rotate(0deg);
-  opacity:1;z-index:2;
+  opacity:1;
+  z-index:3;
 }
 .hp-right{
-  width:90px;height:180px;
-  transform:rotate(6deg) translateY(14px);
-  opacity:.75;
+  width:160px;height:220px;
+  transform:rotate(6deg) translateX(-20px) translateY(20px);
+  opacity:.8;
+  z-index:1;
 }
 @keyframes floatPhone{0%,100%{transform:rotate(0deg) translateY(0)}50%{transform:rotate(0deg) translateY(-10px)}}
 .hp-center{animation:floatPhone 4s ease-in-out infinite;}
@@ -171,8 +155,8 @@ h1 span{color:rgba(237,232,223,.3)}
 
 @media(max-width:480px){
   .hp-left,.hp-right{display:none;}
-  .hp-center{width:120px;height:240px;}
-  .hero-phones{height:240px;margin-top:2.5rem;}
+  .hp-center{width:180px;height:250px;}
+  .hero-phones{height:250px;margin-top:2.5rem;}
 }
 
 /* ══ CATÁLOGO ══ */
@@ -772,105 +756,15 @@ footer{border-top:1px solid rgba(237,232,223,.08);padding:2.5rem 1.25rem;text-al
 
   <!-- iPhones flotantes -->
   <div class="hero-phones">
-
-    <!-- IZQUIERDA — Azul Marino -->
     <div class="hero-phone hp-left">
-      <div class="iphone-svg-wrap" style="width:90px;height:180px;">
-        <img src="izquierda.jpg" alt="iPhone 17 Pro Azul Marino" loading="lazy" class="iphone-screen-img"/>
-        <svg viewBox="0 0 200 400" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;">
-          <defs>
-            <!-- Marco exterior del iPhone -->
-          </defs>
-          <!-- Cuerpo del iPhone -->
-          <rect x="2" y="2" width="196" height="396" rx="36" ry="36" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="2.5"/>
-          <!-- Borde interno (chaflan) -->
-          <rect x="8" y="8" width="184" height="384" rx="30" ry="30" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
-          <!-- Botón lateral derecho (encendido) -->
-          <rect x="196" y="110" width="6" height="36" rx="3" fill="rgba(255,255,255,0.15)"/>
-          <!-- Botones volumen izquierda -->
-          <rect x="-2" y="100" width="5" height="26" rx="2.5" fill="rgba(255,255,255,0.15)"/>
-          <rect x="-2" y="134" width="5" height="26" rx="2.5" fill="rgba(255,255,255,0.15)"/>
-          <!-- Switch silencio -->
-          <rect x="-2" y="72" width="5" height="18" rx="2.5" fill="rgba(255,255,255,0.15)"/>
-          <!-- Isla dinámica -->
-          <rect x="72" y="16" width="56" height="14" rx="7" fill="#0a0a0a"/>
-          <!-- Pantalla (recorte con esquinas) — solo overlay de reflejos -->
-          <rect x="14" y="54" width="172" height="292" rx="8" ry="8" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
-          <!-- Reflejo sutil en pantalla -->
-          <linearGradient id="refL" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="white" stop-opacity="0.06"/>
-            <stop offset="40%" stop-color="white" stop-opacity="0"/>
-          </linearGradient>
-          <rect x="14" y="54" width="172" height="292" rx="8" ry="8" fill="url(#refL)"/>
-          <!-- Cámara trasera — NO se ve porque estamos mirando la pantalla, omitir -->
-          <!-- Borde inferior de la pantalla (chin) -->
-          <rect x="14" y="346" width="172" height="46" rx="0" fill="rgba(0,0,0,0.3)"/>
-          <rect x="82" y="360" width="36" height="5" rx="2.5" fill="rgba(255,255,255,0.12)"/>
-          <!-- Marco exterior completo encima para "contener" -->
-          <rect x="2" y="2" width="196" height="396" rx="36" ry="36" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="3"/>
-        </svg>
-      </div>
+      <img src="izquierda.jpg" alt="iPhone 17 Pro Azul Marino" loading="lazy"/>
     </div>
-
-    <!-- CENTRO — Naranja -->
     <div class="hero-phone hp-center">
-      <div class="iphone-svg-wrap" style="width:115px;height:230px;">
-        <img src="medio.jpg" alt="iPhone 17 Pro Naranja" loading="lazy" class="iphone-screen-img"/>
-        <svg viewBox="0 0 200 400" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;">
-          <defs>
-            <linearGradient id="refC" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="white" stop-opacity="0.08"/>
-              <stop offset="40%" stop-color="white" stop-opacity="0"/>
-            </linearGradient>
-            <filter id="glow">
-              <feGaussianBlur stdDeviation="3" result="blur"/>
-              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-          </defs>
-          <rect x="2" y="2" width="196" height="396" rx="36" ry="36" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="2.5"/>
-          <rect x="8" y="8" width="184" height="384" rx="30" ry="30" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
-          <rect x="196" y="110" width="6" height="36" rx="3" fill="rgba(255,255,255,0.18)"/>
-          <rect x="-2" y="100" width="5" height="26" rx="2.5" fill="rgba(255,255,255,0.18)"/>
-          <rect x="-2" y="134" width="5" height="26" rx="2.5" fill="rgba(255,255,255,0.18)"/>
-          <rect x="-2" y="72" width="5" height="18" rx="2.5" fill="rgba(255,255,255,0.18)"/>
-          <rect x="72" y="16" width="56" height="14" rx="7" fill="#080808"/>
-          <rect x="14" y="54" width="172" height="292" rx="8" ry="8" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>
-          <rect x="14" y="54" width="172" height="292" rx="8" ry="8" fill="url(#refC)"/>
-          <rect x="14" y="346" width="172" height="46" rx="0" fill="rgba(0,0,0,0.25)"/>
-          <rect x="82" y="360" width="36" height="5" rx="2.5" fill="rgba(255,255,255,0.15)"/>
-          <rect x="2" y="2" width="196" height="396" rx="36" ry="36" fill="none" stroke="rgba(255,200,100,0.3)" stroke-width="3" filter="url(#glow)"/>
-          <rect x="2" y="2" width="196" height="396" rx="36" ry="36" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2.5"/>
-        </svg>
-      </div>
+      <img src="medio.jpg" alt="iPhone 17 Pro Naranja" loading="lazy"/>
     </div>
-
-    <!-- DERECHA — Plata -->
     <div class="hero-phone hp-right">
-      <div class="iphone-svg-wrap" style="width:90px;height:180px;">
-        <img src="derecha.jpg" alt="iPhone 17 Pro Plata" loading="lazy" class="iphone-screen-img"/>
-        <svg viewBox="0 0 200 400" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;">
-          <defs>
-            <linearGradient id="refR" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="white" stop-opacity="0.06"/>
-              <stop offset="40%" stop-color="white" stop-opacity="0"/>
-            </linearGradient>
-          </defs>
-          <rect x="2" y="2" width="196" height="396" rx="36" ry="36" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="2.5"/>
-          <rect x="8" y="8" width="184" height="384" rx="30" ry="30" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
-          <rect x="196" y="110" width="6" height="36" rx="3" fill="rgba(255,255,255,0.15)"/>
-          <rect x="-2" y="100" width="5" height="26" rx="2.5" fill="rgba(255,255,255,0.15)"/>
-          <rect x="-2" y="134" width="5" height="26" rx="2.5" fill="rgba(255,255,255,0.15)"/>
-          <rect x="-2" y="72" width="5" height="18" rx="2.5" fill="rgba(255,255,255,0.15)"/>
-          <rect x="72" y="16" width="56" height="14" rx="7" fill="#0a0a0a"/>
-          <rect x="14" y="54" width="172" height="292" rx="8" ry="8" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
-          <rect x="14" y="54" width="172" height="292" rx="8" ry="8" fill="url(#refR)"/>
-          <rect x="14" y="346" width="172" height="46" rx="0" fill="rgba(0,0,0,0.3)"/>
-          <rect x="82" y="360" width="36" height="5" rx="2.5" fill="rgba(255,255,255,0.12)"/>
-          <rect x="2" y="2" width="196" height="396" rx="36" ry="36" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="3"/>
-        </svg>
-      </div>
+      <img src="derecha.jpg" alt="iPhone 17 Pro Plata" loading="lazy"/>
     </div>
-
   </div>
 
   <div class="scroll-hint">
