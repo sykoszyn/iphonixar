@@ -111,7 +111,6 @@ h1 span{color:rgba(237,232,223,.3)}
   height:300px;
 }
 
-/* cada teléfono */
 .hero-phone{
   flex-shrink:0;
   position:relative;
@@ -120,72 +119,62 @@ h1 span{color:rgba(237,232,223,.3)}
   justify-content:center;
 }
 
-/* imagen sin fondo negro */
 .hero-phone img{
   display:block;
   width:100%;
   height:100%;
   object-fit:contain;
-  position:relative;
-  z-index:2;
-}
-.hp-center img{
-  filter:
-    drop-shadow(0 0 18px rgba(220,100,20,.55))
-    drop-shadow(0 0 40px rgba(200,70,0,.3))
-    drop-shadow(0 24px 40px rgba(0,0,0,.8));
-}
-.hp-left img{
-  filter: drop-shadow(0 16px 30px rgba(0,0,0,.7));
-}
-.hp-right img{
-  filter: drop-shadow(0 16px 30px rgba(0,0,0,.7));
 }
 
-/* ── glow oval bajo cada celu ── */
+.hp-left img  { filter:drop-shadow(0 12px 24px rgba(0,0,0,.65)); }
+.hp-right img { filter:drop-shadow(0 12px 24px rgba(0,0,0,.65)); }
+.hp-center img{ filter:drop-shadow(0 12px 32px rgba(0,0,0,.7)) drop-shadow(0 0 22px rgba(210,90,10,.45)); }
+
+/* forzar GPU en todos los phones para evitar flash en mobile */
+.hero-phone{
+  -webkit-transform:translateZ(0);
+  transform:translateZ(0);
+  -webkit-backface-visibility:hidden;
+  backface-visibility:hidden;
+  will-change:transform;
+}
+
+/* glow piso bajo cada celu */
 .hero-phone::before{
   content:'';
   position:absolute;
-  bottom:-8px;
-  left:50%;
+  bottom:-6px;left:50%;
   transform:translateX(-50%);
-  width:70%;
-  height:22px;
+  width:65%;height:18px;
   border-radius:50%;
-  filter:blur(14px);
-  z-index:1;
+  filter:blur(12px);
   pointer-events:none;
 }
-.hp-left::before  { background:#2a5298; opacity:.6; }
-.hp-center::before{ background:#d4620a; opacity:.85; width:80%; height:28px; }
-.hp-right::before { background:#8a9ab5; opacity:.5; }
-
-/* sin ::after en el centro */
-.hp-center::after{ display:none; }
+.hp-left::before  { background:#2a5298;opacity:.55; }
+.hp-center::before{ background:#d4620a;opacity:.8;width:75%;height:24px; }
+.hp-right::before { background:#8a9ab5;opacity:.45; }
 
 .hp-left{
-  width:150px; height:240px;
-  transform:rotate(-7deg) translateX(28px) translateY(28px);
-  opacity:.82;
-  z-index:1;
+  width:150px;height:240px;
+  transform:rotate(-7deg) translateX(28px) translateY(28px) translateZ(0);
+  opacity:.82;z-index:1;
 }
 .hp-center{
-  width:210px; height:300px;
-  opacity:1;
-  z-index:3;
+  width:210px;height:300px;
+  opacity:1;z-index:3;
+  transform:translateZ(0);
 }
 .hp-right{
-  width:150px; height:240px;
-  transform:rotate(7deg) translateX(-28px) translateY(28px);
-  opacity:.82;
-  z-index:1;
+  width:150px;height:240px;
+  transform:rotate(7deg) translateX(-28px) translateY(28px) translateZ(0);
+  opacity:.82;z-index:1;
 }
 
 @keyframes floatPhone{
-  0%,100%{transform:translateY(0)}
-  50%{transform:translateY(-10px)}
+  0%,100%{transform:translateY(0) translateZ(0)}
+  50%    {transform:translateY(-10px) translateZ(0)}
 }
-.hp-center{ animation:floatPhone 4s ease-in-out infinite; }
+.hp-center{animation:floatPhone 4s ease-in-out infinite;}
 
 /* scroll hint */
 .scroll-hint{
@@ -198,9 +187,8 @@ h1 span{color:rgba(237,232,223,.3)}
 
 @media(max-width:480px){
   .hp-left,.hp-right{display:none;}
-  .hp-center{width:190px;height:270px;}
-  .hero-phones{height:270px;margin-top:2rem;}
-  .hp-center::after{inset:-10px;border-radius:30px;}
+  .hp-center{width:200px;height:285px;}
+  .hero-phones{height:285px;margin-top:2rem;}
 }
 
 /* ══ CATÁLOGO ══ */
