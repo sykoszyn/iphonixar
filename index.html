@@ -130,9 +130,11 @@ body::after{
 }
 .aurora{
   position:fixed;pointer-events:none;border-radius:50%;
-  filter:blur(100px);z-index:0;
+  filter:blur(70px);z-index:0;
   animation:aurora 18s ease-in-out infinite;
   mix-blend-mode:screen;
+  will-change:transform;
+  transform:translateZ(0);
 }
 .aurora-1{
   width:700px;height:420px;top:-160px;left:-200px;
@@ -300,15 +302,15 @@ h1 span{color:rgba(237,232,223,.3)}
 .no-results{grid-column:1/-1;text-align:center;padding:5rem 1rem;color:rgba(237,232,223,.25);font-size:.88rem}
 
 /* ══ CARD ══ */
+/* ══ PERFORMANCE: sin backdrop-filter en cards ══ */
 .card{
-  background:rgba(18,28,58,.75);
-  backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
+  background:rgba(15,22,48,.92);
   border:1px solid rgba(237,232,223,.09);
   border-radius:20px;overflow:hidden;display:flex;flex-direction:column;
-  transition:transform .22s cubic-bezier(.22,1,.36,1),box-shadow .22s;
+  transition:transform .18s cubic-bezier(.22,1,.36,1),box-shadow .18s;
+  will-change:transform;
 }
-.card:hover{transform:translateY(-3px);box-shadow:0 18px 50px rgba(0,0,0,.6),0 0 0 1px rgba(100,120,255,.15)}
+.card:hover{transform:translateY(-3px);box-shadow:0 16px 40px rgba(0,0,0,.55),0 0 0 1px rgba(100,120,255,.12)}
 
 /* ── Carrusel de fotos en la card ── */
 .card-gallery{
@@ -402,29 +404,57 @@ h1 span{color:rgba(237,232,223,.3)}
 
 /* ══ MODAL DETALLE ══ */
 #modal-overlay{
-  display:none;position:fixed;inset:0;background:rgba(8,14,28,.92);
+  display:none;position:fixed;inset:0;background:rgba(6,11,22,.88);
   z-index:300;align-items:center;justify-content:center;padding:1rem;
-  -webkit-overflow-scrolling:touch;
 }
 #modal-overlay.show{display:flex}
 #modal-box{
-  background:#162040;border:1px solid rgba(237,232,223,.1);border-radius:22px;
-  width:min(900px,100%);max-height:90vh;overflow-y:auto;
+  background:#0f1630;border:1px solid rgba(237,232,223,.1);border-radius:22px;
+  width:min(900px,100%);max-height:90vh;overflow-y:auto;overflow-x:hidden;
   display:flex;flex-wrap:wrap;
-  transform:translateZ(0);-webkit-transform:translateZ(0);
+  transform:translateZ(0);
+  scrollbar-width:none;
 }
+#modal-box::-webkit-scrollbar{display:none}
 .modal-gallery{
   width:min(400px,100%);flex:1 1 300px;
-  position:relative;background:#0d1627;border-radius:22px 0 0 22px;overflow:hidden;
+  position:relative;background:#0a1020;border-radius:22px 0 0 22px;overflow:hidden;
   min-height:320px;display:flex;align-items:center;justify-content:center;
 }
-@media(max-width:600px){
-  #modal-box{flex-direction:column}
-  .modal-gallery{border-radius:22px 22px 0 0;min-height:260px;width:100%}
+
+/* ══ MOBILE: todo en columna, sin deslizar ══ */
+@media(max-width:640px){
+  #modal-overlay{padding:0;align-items:flex-end;}
+  #modal-box{
+    flex-direction:column;
+    border-radius:24px 24px 0 0;
+    width:100%;
+    max-height:92vh;
+    overflow-y:auto;
+    border-bottom:none;
+  }
+  .modal-gallery{
+    border-radius:24px 24px 0 0;
+    min-height:240px;
+    width:100%;
+    flex:none;
+  }
+  .modal-info{
+    flex:none;
+    width:100%;
+    padding:1.25rem 1.25rem 2rem;
+  }
+  .modal-add{
+    position:sticky;
+    bottom:0;
+    margin-top:.75rem;
+    border-radius:12px;
+    z-index:2;
+  }
 }
 .modal-track{display:flex;width:100%;height:100%;transition:transform .25s cubic-bezier(.22,1,.36,1);position:absolute;top:0;left:0;will-change:transform}
 .modal-slide{min-width:100%;height:100%;display:flex;align-items:center;justify-content:center}
-.modal-slide img{width:100%;height:100%;object-fit:contain;padding:.75rem;background:#0d1627}
+.modal-slide img{width:100%;height:100%;object-fit:contain;padding:.75rem;background:transparent;mix-blend-mode:lighten}
 .modal-placeholder{color:rgba(237,232,223,.12);display:flex;flex-direction:column;align-items:center;gap:.6rem}
 .modal-arrow{
   position:absolute;top:50%;transform:translateY(-50%);
@@ -2086,54 +2116,50 @@ renderCarrito();
   }
 
   function init() {
-    const count = Math.min(80, Math.floor(W * H / 14000));
+    const isMobile = window.innerWidth < 640;
+    const count = isMobile
+      ? Math.min(30, Math.floor(W * H / 20000))
+      : Math.min(70, Math.floor(W * H / 14000));
     pts = Array.from({length: count}, () => ({
       x:  Math.random() * W,
       y:  Math.random() * H,
-      vx: (Math.random() - .5) * .35,
-      vy: (Math.random() - .5) * .35,
-      r:  Math.random() * 1.4 + .4,
-      // color: mezcla azul-violeta
+      vx: (Math.random() - .5) * .3,
+      vy: (Math.random() - .5) * .3,
+      r:  Math.random() * 1.2 + .4,
       h: Math.random() < .6 ? 220 + Math.random()*40 : 20 + Math.random()*30,
     }));
   }
 
+  const connDist = 120;
+
   function draw() {
     ctx.clearRect(0, 0, W, H);
+    const len = pts.length;
 
-    // conexiones entre puntos cercanos
-    for (let i = 0; i < pts.length; i++) {
-      for (let j = i+1; j < pts.length; j++) {
+    for (let i = 0; i < len; i++) {
+      for (let j = i+1; j < len; j++) {
         const dx = pts[i].x - pts[j].x;
         const dy = pts[i].y - pts[j].y;
-        const d  = Math.sqrt(dx*dx + dy*dy);
-        if (d < 130) {
-          const alpha = (1 - d/130) * .18;
+        const d2 = dx*dx + dy*dy;
+        if (d2 < connDist*connDist) {
+          const alpha = (1 - Math.sqrt(d2)/connDist) * .15;
           ctx.beginPath();
           ctx.moveTo(pts[i].x, pts[i].y);
           ctx.lineTo(pts[j].x, pts[j].y);
           ctx.strokeStyle = `rgba(100,130,255,${alpha})`;
-          ctx.lineWidth = .8;
+          ctx.lineWidth = .7;
           ctx.stroke();
         }
       }
-    }
-
-    // puntos
-    pts.forEach(p => {
+      const p = pts[i];
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-      const isOrange = p.h < 60;
-      ctx.fillStyle = isOrange
-        ? `rgba(255,140,60,.55)`
-        : `rgba(100,140,255,.6)`;
+      ctx.fillStyle = p.h < 60 ? 'rgba(255,140,60,.5)' : 'rgba(100,140,255,.55)';
       ctx.fill();
-
-      // mover
       p.x += p.vx; p.y += p.vy;
-      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
-      if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
-    });
+      if (p.x < 0) p.x = W; else if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H; else if (p.y > H) p.y = 0;
+    }
 
     requestAnimationFrame(draw);
   }
