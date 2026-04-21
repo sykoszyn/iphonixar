@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="referrer" content="no-referrer"/>
+<title>iPhonixAr — Panel Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0e1525;--s1:#162040;--s2:#1a2540;--s3:#0d1627;
+  --cr:#ede8df;--cr2:rgba(237,232,223,.55);--bd:rgba(237,232,223,.1);
+  --gr:#34d399;--rd:#f87171;--yw:#fbbf24;--bl:#60a5fa;
+}
+body{background:var(--bg);color:var(--cr);min-height:100vh;overflow-x:hidden;font-family:'Inter',system-ui,sans-serif;}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:99px}
+
+/* CONFIG PANEL */
+#cfg-banner{position:fixed;top:0;left:0;right:0;z-index:900;background:#7c3aed;color:#fff;padding:.55rem 1rem;font-size:.78rem;font-weight:600;text-align:center;display:none;gap:1rem;align-items:center;justify-content:center;flex-wrap:wrap;}
+#cfg-banner.show{display:flex}
+#cfg-banner a{color:#e9d5ff;text-decoration:underline}
+#cfg-banner button{background:rgba(255,255,255,.2);border:none;color:#fff;padding:.25rem .65rem;border-radius:5px;font-size:.74rem;cursor:pointer}
+
+/* LOGIN */
+#lscr{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999;padding:1.5rem;}
+.lbox{background:var(--s1);border:1px solid var(--bd);border-radius:22px;padding:2.5rem 2rem;width:min(360px,100%);text-align:center;}
+.llogo{display:flex;align-items:center;justify-content:center;gap:.5rem;font-weight:800;font-size:1.2rem;margin-bottom:.4rem}
+.lsub{font-size:.8rem;color:var(--cr2);margin-bottom:2rem}
+.lf{margin-bottom:1rem;text-align:left}
+.lf label{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--cr2);display:block;margin-bottom:.35rem}
+.lf input{width:100%;background:var(--s3);border:1px solid var(--bd);border-radius:10px;color:var(--cr);padding:.7rem .9rem;font-size:.9rem;outline:none;transition:border-color .15s}
+.lf input:focus{border-color:rgba(237,232,223,.35)}
+.lbtn{width:100%;padding:.85rem;background:var(--cr);color:#0e1525;border:none;border-radius:12px;font-weight:700;font-size:.95rem;cursor:pointer;margin-top:.5rem;transition:background .14s}
+.lbtn:hover{background:#d8d2c8}
+.lerr{font-size:.78rem;color:var(--rd);margin-top:.75rem;display:none}
+
+/* LAYOUT */
+#app{display:none;min-height:100vh}
+#topbar{position:fixed;top:0;left:0;right:0;height:56px;z-index:200;background:rgba(13,18,37,.97);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;padding:0 1rem;gap:.75rem;}
+.tb-logo{display:flex;align-items:center;gap:.4rem;font-weight:700;font-size:.95rem}
+.tb-logo em{color:var(--cr2);font-style:normal}
+.tb-r{display:flex;align-items:center;gap:.5rem;flex-shrink:0}
+.tb-badge{font-size:.7rem;font-weight:600;padding:.25rem .65rem;border-radius:999px;background:rgba(52,211,153,.12);color:var(--gr);border:1px solid rgba(52,211,153,.25);white-space:nowrap}
+.tb-out{background:none;border:none;color:var(--cr2);font-size:.8rem;padding:.3rem .6rem;border-radius:8px;transition:all .15s}
+.tb-out:hover{color:var(--cr);background:var(--bd)}
+#mtog{background:none;border:none;color:var(--cr);display:flex;flex-direction:column;gap:4px;padding:.35rem;cursor:pointer;flex-shrink:0}
+#mtog span{display:block;width:20px;height:2px;background:currentColor;border-radius:1px;transition:all .25s}
+#mtog.open span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+#mtog.open span:nth-child(2){opacity:0}
+#mtog.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+
+/* SIDEBAR */
+#sb{position:fixed;top:56px;left:0;bottom:0;width:210px;background:var(--s1);border-right:1px solid var(--bd);padding:1rem .75rem;display:flex;flex-direction:column;gap:.25rem;z-index:150;transition:transform .28s cubic-bezier(.22,1,.36,1);}
+.ni{display:flex;align-items:center;gap:.65rem;padding:.65rem .85rem;border-radius:10px;font-size:.82rem;font-weight:500;color:var(--cr2);cursor:pointer;transition:all .15s;border:none;background:transparent;width:100%;text-align:left}
+.ni:hover{background:var(--s2);color:var(--cr)}
+.ni.active{background:rgba(237,232,223,.1);color:var(--cr);font-weight:600}
+.ni svg{flex-shrink:0;opacity:.7}.ni.active svg{opacity:1}
+.nsep{height:1px;background:var(--bd);margin:.5rem 0}
+#sbov{display:none;position:fixed;inset:0;top:56px;background:rgba(0,0,0,.55);z-index:149}
+#sbov.show{display:block}
+
+/* MAIN */
+#main{padding-top:56px;min-height:100vh;}
+.page{display:none;padding:1.5rem;max-width:1100px}
+.page.active{display:block}
+.ptitle{font-size:1.35rem;font-weight:800;letter-spacing:-.03em;margin-bottom:.25rem}
+.psub{font-size:.82rem;color:var(--cr2);margin-bottom:1.75rem}
+
+/* STATS */
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.85rem;margin-bottom:1.75rem}
+.sc2{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:1.1rem}
+.sn{font-size:1.7rem;font-weight:900;letter-spacing:-.04em}
+.sl{font-size:.7rem;color:var(--cr2);margin-top:.2rem}
+.sc2.gr .sn{color:var(--gr)}.sc2.rd .sn{color:var(--rd)}.sc2.yw .sn{color:var(--yw)}.sc2.bl .sn{color:var(--bl)}
+
+/* TOOLBAR */
+.tb2{display:flex;gap:.55rem;margin-bottom:1.25rem;flex-wrap:wrap;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1rem;border-radius:10px;font-size:.8rem;font-weight:600;border:none;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn-p{background:var(--cr);color:#0e1525}.btn-p:hover{background:#d8d2c8}
+.btn-s{background:var(--s2);color:var(--cr);border:1px solid var(--bd)}.btn-s:hover{background:var(--s1)}
+.btn-ok{background:rgba(52,211,153,.1);color:var(--gr);border:1px solid rgba(52,211,153,.2)}
+.btn-warn{background:rgba(251,191,36,.1);color:var(--yw);border:1px solid rgba(251,191,36,.2)}
+.sb3{flex:1;min-width:150px;background:var(--s2);border:1px solid var(--bd);border-radius:10px;color:var(--cr);padding:.55rem .9rem;font-size:.82rem;outline:none;transition:border-color .15s}
+.sb3:focus{border-color:rgba(237,232,223,.3)}.sb3::placeholder{color:var(--cr2)}
+
+/* TABLA */
+.tw{background:var(--s1);border:1px solid var(--bd);border-radius:14px;overflow:hidden;overflow-x:auto}
+.tw table{width:100%;border-collapse:collapse;min-width:600px}
+.tw th{font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--cr2);padding:.8rem .9rem;text-align:left;border-bottom:1px solid var(--bd);background:rgba(237,232,223,.03);white-space:nowrap}
+.tw td{padding:.7rem .9rem;font-size:.8rem;border-bottom:1px solid rgba(237,232,223,.05);vertical-align:middle}
+.tw tr:last-child td{border-bottom:none}.tw tr:hover td{background:rgba(237,232,223,.02)}
+.tn{font-weight:600;max-width:160px}.tn small{display:block;font-size:.68rem;color:var(--cr2);font-weight:400;margin-top:.1rem}
+.bdg{display:inline-block;padding:.18rem .55rem;border-radius:999px;font-size:.6rem;font-weight:700;letter-spacing:.06em}
+.b-s{background:rgba(237,232,223,.12);color:var(--cr)}.b-u{background:rgba(96,165,250,.1);color:var(--bl)}.b-f{background:rgba(167,139,250,.1);color:#a78bfa}.b-c{background:rgba(251,191,36,.1);color:var(--yw)}
+.sok{color:var(--gr);font-weight:600}.slw{color:var(--yw);font-weight:600}.sno{color:var(--rd);font-weight:600}
+.tft{display:flex;gap:.3rem;align-items:center}
+.ftmb{width:32px;height:32px;border-radius:5px;object-fit:cover;border:1px solid var(--bd);background:var(--s3)}
+.fct{font-size:.65rem;color:var(--cr2)}
+.tac{display:flex;gap:.3rem;flex-wrap:nowrap}
+.ab{padding:.32rem .55rem;border-radius:6px;font-size:.7rem;font-weight:600;border:none;cursor:pointer;transition:all .12s;white-space:nowrap}
+.ae{background:rgba(96,165,250,.1);color:var(--bl)}.ae:hover{background:rgba(96,165,250,.2)}
+.ad{background:rgba(248,113,113,.1);color:var(--rd)}.ad:hover{background:rgba(248,113,113,.2)}
+.as{background:rgba(52,211,153,.1);color:var(--gr)}.as:hover{background:rgba(52,211,153,.2)}
+
+/* MODAL PRODUCTO */
+#pmov{display:none;position:fixed;inset:0;background:rgba(8,14,28,.88);z-index:300;align-items:flex-start;justify-content:center;padding:1rem;overflow-y:auto}
+#pmov.show{display:flex}
+#pmod{background:var(--s1);border:1px solid var(--bd);border-radius:20px;width:min(700px,100%);margin:auto;padding:1.75rem;animation:fup .28s both}
+@keyframes fup{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.4rem}
+.mh h3{font-size:1.05rem;font-weight:700}
+.mx{background:rgba(237,232,223,.08);border:none;color:var(--cr);width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.mx:hover{background:rgba(237,232,223,.18)}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.sp2{grid-column:1/-1}
+.fd{display:flex;flex-direction:column;gap:.3rem}
+.fd label{font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--cr2)}
+.fd input,.fd select,.fd textarea{background:var(--s3);border:1px solid var(--bd);border-radius:10px;color:var(--cr);padding:.65rem .85rem;font-size:.85rem;outline:none;transition:border-color .15s;width:100%}
+.fd input:focus,.fd select:focus,.fd textarea:focus{border-color:rgba(237,232,223,.35)}
+.fd select option{background:var(--s1)}
+.fd textarea{resize:vertical;min-height:70px;line-height:1.5}
+.req::after{content:' *';color:var(--rd)}
+input[type=range]{accent-color:var(--cr);cursor:pointer;width:100%}
+
+/* FOTOS */
+.foto-sec{margin-top:1.1rem}
+.foto-sec-lbl{font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--cr2);margin-bottom:.6rem}
+.foto-grid{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.6rem}
+.foto-item{position:relative;width:72px;height:72px;border-radius:9px;overflow:hidden;border:1px solid var(--bd)}
+.foto-item img{width:100%;height:100%;object-fit:cover}
+.foto-del{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.75);border:none;color:#fff;width:18px;height:18px;border-radius:50%;font-size:.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.foto-add-btn{width:72px;height:72px;border-radius:9px;border:2px dashed var(--bd);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:var(--cr2);font-size:.6rem;gap:.2rem;background:transparent;transition:border-color .15s}
+.foto-add-btn:hover{border-color:rgba(237,232,223,.35);color:var(--cr)}
+
+/* Upload area */
+.upload-area{border:2px dashed var(--bd);border-radius:12px;padding:1.5rem 1rem;text-align:center;cursor:pointer;position:relative;transition:all .15s}
+.upload-area:hover,.upload-area.drag{border-color:var(--gr);background:rgba(52,211,153,.04)}
+.upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:1.8rem;margin-bottom:.4rem}
+.upload-txt{font-size:.82rem;font-weight:600;color:var(--cr);margin-bottom:.2rem}
+.upload-sub{font-size:.72rem;color:var(--cr2)}
+.upload-status{margin-top:.8rem;display:none}
+.upload-status.show{display:block}
+.prog-bar{height:6px;background:var(--s3);border-radius:99px;overflow:hidden;margin-bottom:.4rem}
+.prog-fill{height:100%;background:var(--gr);border-radius:99px;transition:width .3s;width:0%}
+.prog-lbl{font-size:.72rem;color:var(--cr2);text-align:center}
+
+/* URL input */
+.url-row{display:flex;gap:.5rem;margin-top:.75rem}
+.url-inp{flex:1;background:var(--s3);border:1px solid var(--bd);border-radius:8px;color:var(--cr);padding:.55rem .75rem;font-size:.8rem;outline:none;transition:border-color .15s}
+.url-inp:focus{border-color:rgba(237,232,223,.35)}.url-inp::placeholder{color:var(--cr2)}
+
+/* MODAL STOCK */
+#smov{display:none;position:fixed;inset:0;background:rgba(8,14,28,.88);z-index:300;align-items:center;justify-content:center;padding:1rem}
+#smov.show{display:flex}
+#smod{background:var(--s1);border:1px solid var(--bd);border-radius:18px;width:min(320px,100%);padding:1.6rem;animation:fup .22s both}
+.stk-ctl{display:flex;align-items:center;gap:1rem;justify-content:center;margin:1.1rem 0}
+.skb{width:42px;height:42px;border-radius:50%;border:none;font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;transition:all .12s}
+.skd{background:rgba(248,113,113,.15);color:var(--rd)}.skd:hover{background:rgba(248,113,113,.3)}
+.ski{background:rgba(52,211,153,.15);color:var(--gr)}.ski:hover{background:rgba(52,211,153,.3)}
+#skv{font-size:2rem;font-weight:900;min-width:60px;text-align:center}
+
+/* TOAST */
+#toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);border-radius:999px;padding:.55rem 1.25rem;font-size:.8rem;font-weight:600;white-space:nowrap;z-index:500;pointer-events:none;opacity:0;transition:opacity .25s;display:flex;align-items:center;gap:.5rem;max-width:90vw;text-align:center}
+#toast.show{opacity:1}
+#toast.ok{background:rgba(52,211,153,.15);border:1px solid rgba(52,211,153,.3);color:var(--gr)}
+#toast.er{background:rgba(248,113,113,.15);border:1px solid rgba(248,113,113,.3);color:var(--rd)}
+#toast.inf{background:rgba(237,232,223,.1);border:1px solid var(--bd);color:var(--cr)}
+
+/* LOADING */
+.ldr td{text-align:center;padding:2.5rem;color:var(--cr2)}
+.spin{display:inline-block;width:18px;height:18px;border:2px solid var(--bd);border-top-color:var(--cr);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* CONFIRM */
+#cfov{display:none;position:fixed;inset:0;background:rgba(8,14,28,.88);z-index:400;align-items:center;justify-content:center;padding:1rem}
+#cfov.show{display:flex}
+#cfbox{background:var(--s1);border:1px solid var(--bd);border-radius:18px;padding:1.6rem;width:min(300px,100%);text-align:center;animation:fup .2s both}
+#cfbox h4{font-size:.95rem;font-weight:700;margin-bottom:.4rem}
+#cfbox p{font-size:.8rem;color:var(--cr2);margin-bottom:1.4rem;line-height:1.5}
+.cf2{display:flex;gap:.6rem}
+.cf2 button{flex:1;padding:.7rem;border-radius:10px;font-weight:600;font-size:.82rem;border:none;cursor:pointer}
+.cfc{background:var(--s2);color:var(--cr)}
+.cfo{background:var(--rd);color:#fff}
+
+/* RESPONSIVE */
+@media(min-width:769px){
+  #sb{transform:translateX(0)!important}
+  #sbov{display:none!important}
+  #main{margin-left:210px}
+  #mtog{display:none}
+}
+@media(max-width:768px){
+  #sb{transform:translateX(-100%)}
+  #sb.open{transform:translateX(0)!important}
+  .fg{grid-template-columns:1fr}
+  .sp2{grid-column:1}
+  .sgrid{grid-template-columns:repeat(2,1fr)}
+  .tb2{gap:.4rem}
+  .tb2 .sb3{min-width:100%;order:10;flex-basis:100%}
+  .page{padding:1rem}
+  #pmod{padding:1.25rem}
+}
+@media(max-width:480px){
+  .sgrid{grid-template-columns:repeat(2,1fr);gap:.6rem}
+  .tac{flex-direction:column}
+  .tb-badge{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- Banner de configuración -->
+<div id="cfg-banner">
+  ⚙️ <strong>Configuración pendiente:</strong> Para habilitar el borrado de productos, ejecutá el SQL en Supabase.
+  <button onclick="mostrarSetup()">Ver instrucciones</button>
+  <button onclick="document.getElementById('cfg-banner').classList.remove('show')" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:1.1rem;cursor:pointer">✕</button>
+</div>
+
+<div id="lscr">
+  <div class="lbox">
+    <div class="llogo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      iPhonix<em style="color:rgba(237,232,223,.3);font-style:normal;font-weight:300">Ar</em> Admin
+    </div>
+    <p class="lsub">Panel de gestión de la tienda</p>
+    <div class="lf"><label>Usuario</label><input type="text" id="lu" placeholder="admin" autocomplete="username"/></div>
+    <div class="lf"><label>Contraseña</label><input type="password" id="lp" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <button class="lbtn" onclick="doLogin()">Ingresar</button>
+    <p class="lerr" id="lerr">Usuario o contraseña incorrectos</p>
+  </div>
+</div>
+
+<div id="app">
+  <div id="topbar">
+    <div style="display:flex;align-items:center;gap:.6rem">
+      <button id="mtog" onclick="toggleSB()"><span></span><span></span><span></span></button>
+      <div class="tb-logo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        iPhonix<em>Ar</em>
+      </div>
+    </div>
+    <div class="tb-r">
+      <span class="tb-badge" id="tbcnt">— productos</span>
+      <button class="btn btn-warn" onclick="mostrarSetup()" style="font-size:.72rem;padding:.32rem .65rem">⚙️ Setup</button>
+      <a href="/" target="_blank" class="btn btn-s" style="font-size:.72rem;padding:.32rem .65rem">Tienda ↗</a>
+      <button class="tb-out" onclick="logout()">Salir</button>
+    </div>
+  </div>
+
+  <div id="sbov" onclick="closeSB()"></div>
+  <nav id="sb">
+    <button class="ni active" data-page="dash" onclick="goPage('dash',this)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
+    </button>
+    <button class="ni" data-page="prods" onclick="goPage('prods',this)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>Productos
+    </button>
+    <button class="ni" data-page="setup" onclick="goPage('setup',this)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Configuración
+    </button>
+    <div class="nsep"></div>
+    <button class="ni" onclick="goPage('prods',document.querySelector('[data-page=prods]'));abrirNuevo()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nuevo producto
+    </button>
+  </nav>
+
+  <main id="main">
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dash">
+      <h1 class="ptitle">Dashboard</h1><p class="psub">Resumen de tu tienda</p>
+      <div class="sgrid">
+        <div class="sc2 bl"><div class="sn" id="st-tot">—</div><div class="sl">Total productos</div></div>
+        <div class="sc2 gr"><div class="sn" id="st-ok">—</div><div class="sl">Con stock</div></div>
+        <div class="sc2 rd"><div class="sn" id="st-no">—</div><div class="sl">Sin stock</div></div>
+        <div class="sc2 yw"><div class="sn" id="st-lw">—</div><div class="sl">Stock bajo (≤2)</div></div>
+      </div>
+      <h2 style="font-size:.95rem;font-weight:700;margin-bottom:.85rem;color:rgba(237,232,223,.65)">⚠️ Stock bajo</h2>
+      <div class="tw"><table><thead><tr><th>Producto</th><th>Categoría</th><th>Stock</th><th>Precio USD</th><th>Acción</th></tr></thead>
+      <tbody id="lb"><tr class="ldr"><td colspan="5"><div class="spin"></div></td></tr></tbody></table></div>
+    </div>
+
+    <!-- PRODUCTOS -->
+    <div class="page" id="page-prods">
+      <h1 class="ptitle">Productos</h1><p class="psub">Gestioná el catálogo completo</p>
+      <div class="tb2">
+        <button class="btn btn-p" onclick="abrirNuevo()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nuevo</button>
+        <select class="sb3" id="fcat" style="flex:0;min-width:150px" onchange="filtTbl()"><option value="">Todas las categorías</option><option>Equipos</option><option>Fundas</option><option>Cargadores</option></select>
+        <input class="sb3" type="text" id="fsrch" placeholder="Buscar producto…" oninput="filtTbl()"/>
+        <button class="btn btn-s" onclick="cargarProds()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg></button>
+      </div>
+      <div class="tw"><table>
+        <thead><tr><th>Producto</th><th>Cat.</th><th>Precio</th><th>Bat.</th><th>Stock</th><th>Fotos</th><th>Acciones</th></tr></thead>
+        <tbody id="pb"><tr class="ldr"><td colspan="7"><div class="spin"></div></td></tr></tbody>
+      </table></div>
+    </div>
+
+    <!-- SETUP / CONFIGURACIÓN -->
+    <div class="page" id="page-setup">
+      <h1 class="ptitle">⚙️ Configuración de Supabase</h1>
+      <p class="psub">Ejecutá estos SQLs una sola vez para habilitar todas las funciones</p>
+
+      <div style="background:var(--s1);border:1px solid var(--bd);border-radius:16px;padding:1.5rem;margin-bottom:1.5rem">
+        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:.4rem;color:var(--gr)">✅ PASO 1 — Habilitar borrado de productos</h3>
+        <p style="font-size:.82rem;color:var(--cr2);margin-bottom:.9rem;line-height:1.55">Copia este SQL y ejecútalo en <a href="https://supabase.com/dashboard/project/ircyvgdxvdxkcnjtnfmn/sql/new" target="_blank" style="color:var(--bl)">Supabase → SQL Editor ↗</a></p>
+        <pre id="sql1" style="background:var(--s3);border:1px solid rgba(148,187,255,.2);border-radius:10px;padding:1rem;font-size:.76rem;color:#93bbff;white-space:pre;font-family:monospace;line-height:1.6;overflow-x:auto">-- Función que borra con permisos de superusuario (bypasa RLS)
+CREATE OR REPLACE FUNCTION borrar_producto(pid uuid)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  DELETE FROM productos WHERE id = pid;
+END;
+$$;
+
+-- Dar permiso de ejecutar a la clave pública
+GRANT EXECUTE ON FUNCTION borrar_producto(uuid) TO anon;
+GRANT EXECUTE ON FUNCTION borrar_producto(uuid) TO authenticated;</pre>
+        <button onclick="copiarSQL('sql1',this)" style="margin-top:.75rem;background:var(--gr);color:#0e1525;border:none;padding:.6rem 1.2rem;border-radius:8px;font-weight:700;font-size:.8rem;cursor:pointer">📋 Copiar SQL</button>
+      </div>
+
+      <div style="background:var(--s1);border:1px solid var(--bd);border-radius:16px;padding:1.5rem;margin-bottom:1.5rem">
+        <h3 style="font-size:.95rem;font-weight:700;margin-bottom:.4rem;color:var(--bl)">📷 PASO 2 — Crear bucket para fotos permanentes</h3>
+        <p style="font-size:.82rem;color:var(--cr2);margin-bottom:.9rem;line-height:1.55">Las fotos se guardarán en Supabase Storage (permanentes, sin límite de tamaño en la DB)</p>
+        <pre id="sql2" style="background:var(--s3);border:1px solid rgba(148,187,255,.2);border-radius:10px;padding:1rem;font-size:.76rem;color:#93bbff;white-space:pre;font-family:monospace;line-height:1.6;overflow-x:auto">-- Crear bucket público para fotos de productos
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+  'fotos-productos',
+  'fotos-productos',
+  true,
+  10485760,  -- 10MB máximo por archivo
+  ARRAY['image/jpeg','image/png','image/webp','image/gif']
+)
+ON CONFLICT (id) DO NOTHING;
+
+-- Política: cualquiera puede ver las fotos (público)
+CREATE POLICY "fotos_public_read" ON storage.objects
+  FOR SELECT USING (bucket_id = 'fotos-productos');
+
+-- Política: la clave anon puede subir fotos
+CREATE POLICY "fotos_anon_upload" ON storage.objects
+  FOR INSERT WITH CHECK (bucket_id = 'fotos-productos');
+
+-- Política: la clave anon puede borrar sus fotos
+CREATE POLICY "fotos_anon_delete" ON storage.objects
+  FOR DELETE USING (bucket_id = 'fotos-productos');</pre>
+        <button onclick="copiarSQL('sql2',this)" style="margin-top:.75rem;background:var(--bl);color:#0e1525;border:none;padding:.6rem 1.2rem;border-radius:8px;font-weight:700;font-size:.8rem;cursor:pointer">📋 Copiar SQL</button>
+      </div>
+
+      <div style="background:rgba(52,211,153,.05);border:1px solid rgba(52,211,153,.2);border-radius:12px;padding:1rem">
+        <p style="font-size:.82rem;color:var(--gr);font-weight:600;margin-bottom:.3rem">✅ Después de ejecutar los dos SQLs:</p>
+        <p style="font-size:.8rem;color:rgba(232,228,220,.55);line-height:1.55">• El botón Borrar funcionará correctamente<br>• Las fotos se guardarán permanentemente en Storage<br>• No hay límite de tamaño ni las fotos desaparecerán</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL PRODUCTO -->
+<div id="pmov">
+  <div id="pmod">
+    <div class="mh"><h3 id="mttl">Nuevo producto</h3><button class="mx" onclick="cerrarMod()">✕</button></div>
+    <div class="fg">
+      <div class="fd sp2"><label class="req">Nombre del producto</label><input type="text" id="fn" placeholder="ej: iPhone 16 Pro 128GB"/></div>
+      <div class="fd sp2"><label>Descripción</label><textarea id="fd2" placeholder="Descripción breve…"></textarea></div>
+      <div class="fd"><label class="req">Categoría</label>
+        <select id="fc" onchange="updSub()"><option value="">— Seleccioná —</option><option>Equipos</option><option>Fundas</option><option>Cargadores</option></select></div>
+      <div class="fd" id="fsubw" style="display:none"><label>Subcategoría</label>
+        <select id="fsub" onchange="updSub()"><option value="">— Ninguna —</option><option>Sellados</option><option>Usados</option></select></div>
+      <div class="fd" id="fmodw" style="display:none"><label>Modelo iPhone</label>
+        <select id="fmod"><option value="">— Seleccioná —</option>
+          <optgroup label="iPhone 17"><option>iPhone 17 Pro Max</option><option>iPhone 17 Pro</option><option>iPhone 17 Air</option><option>iPhone 17</option></optgroup>
+          <optgroup label="iPhone 16"><option>iPhone 16 Pro Max</option><option>iPhone 16 Pro</option><option>iPhone 16 Plus</option><option>iPhone 16</option></optgroup>
+          <optgroup label="iPhone 15"><option>iPhone 15 Pro Max</option><option>iPhone 15 Pro</option><option>iPhone 15 Plus</option><option>iPhone 15</option></optgroup>
+          <optgroup label="iPhone 14"><option>iPhone 14 Pro Max</option><option>iPhone 14 Pro</option><option>iPhone 14 Plus</option><option>iPhone 14</option></optgroup>
+          <optgroup label="iPhone 13"><option>iPhone 13 Pro Max</option><option>iPhone 13 Pro</option><option>iPhone 13</option><option>iPhone 13 Mini</option></optgroup>
+          <optgroup label="iPhone 12"><option>iPhone 12 Pro Max</option><option>iPhone 12 Pro</option><option>iPhone 12</option><option>iPhone 12 Mini</option></optgroup>
+          <optgroup label="iPhone 11"><option>iPhone 11 Pro Max</option><option>iPhone 11 Pro</option><option>iPhone 11</option></optgroup>
+        </select></div>
+      <div class="fd"><label class="req">Precio (USD)</label><input type="number" id="fp" placeholder="0" min="0" step="0.01"/></div>
+      <div class="fd"><label class="req">Stock</label><input type="number" id="fst" placeholder="0" min="0"/></div>
+      <div class="fd sp2" id="fbatw" style="display:none">
+        <label>Batería &nbsp;<span id="fbatv" style="color:var(--cr);font-weight:700">85%</span></label>
+        <input type="range" id="fbat" min="50" max="100" value="85" oninput="document.getElementById('fbatv').textContent=this.value+'%'"/>
+      </div>
+    </div>
+
+    <!-- FOTOS -->
+    <div class="foto-sec">
+      <div class="foto-sec-lbl">Fotos del producto</div>
+      <div class="foto-grid" id="fgrid"></div>
+
+      <!-- Upload área unificada -->
+      <div class="upload-area" id="uparea">
+        <input type="file" id="finput" accept="image/jpeg,image/png,image/webp" multiple onchange="onFileSelect(this.files)"/>
+        <div class="upload-icon">📷</div>
+        <div class="upload-txt">Tocá para elegir fotos o arrastrá aquí</div>
+        <div class="upload-sub">JPG · PNG · WEBP — máx 10MB por foto · Se guardan permanentemente</div>
+      </div>
+      <div class="upload-status" id="ustatus">
+        <div class="prog-bar"><div class="prog-fill" id="pfill"></div></div>
+        <div class="prog-lbl" id="plbl">Subiendo...</div>
+      </div>
+
+      <!-- URL manual -->
+      <div class="url-row" style="margin-top:.75rem">
+        <input type="text" class="url-inp" id="furl" placeholder="O pegá una URL directa de imagen (https://...)"/>
+        <button class="btn btn-s" onclick="addUrl()" style="flex-shrink:0">+ Agregar</button>
+      </div>
+      <p style="font-size:.65rem;color:var(--cr2);margin-top:.4rem">
+        💡 También podés usar <a href="https://imgbb.com" target="_blank" style="color:var(--bl)">imgbb.com</a> para hostear tus fotos gratis y pegar el link
+      </p>
+    </div>
+
+    <div style="display:flex;gap:.65rem;margin-top:1.5rem;justify-content:flex-end;flex-wrap:wrap">
+      <button class="btn btn-s" onclick="cerrarMod()">Cancelar</button>
+      <button class="btn btn-p" id="msave" onclick="guardarProd()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL STOCK -->
+<div id="smov">
+  <div id="smod">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem">
+      <h3 style="font-size:.98rem;font-weight:700">Actualizar stock</h3>
+      <button class="mx" onclick="cerrarStock()">✕</button>
+    </div>
+    <p id="spnm" style="font-size:.8rem;color:var(--cr2);word-break:break-word"></p>
+    <div class="stk-ctl">
+      <button class="skb skd" onclick="chgStk(-1)">−</button>
+      <span id="skv">0</span>
+      <button class="skb ski" onclick="chgStk(1)">+</button>
+    </div>
+    <div style="display:flex;gap:.6rem">
+      <button class="btn btn-s" style="flex:1" onclick="cerrarStock()">Cancelar</button>
+      <button class="btn btn-ok" style="flex:1" onclick="saveStk()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div id="cfov">
+  <div id="cfbox">
+    <h4 id="cftit">¿Confirmar?</h4>
+    <p id="cfmsg"></p>
+    <div class="cf2">
+      <button class="cfc" onclick="cfClose()">Cancelar</button>
+      <button class="cfo" id="cfok">Confirmar</button>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* ══ CONFIG ══ */
+const SBU = 'https://ircyvgdxvdxkcnjtnfmn.supabase.co';
+const SBK = 'sb_publishable_iakJ2dZZO8shO3_EvgMv3g_oPKvu9ck';
+const BUCKET = 'fotos-productos';
+
+const H  = {'apikey':SBK,'Authorization':'Bearer '+SBK,'Content-Type':'application/json','Prefer':'return=representation'};
+const HD = {'apikey':SBK,'Authorization':'Bearer '+SBK,'Content-Type':'application/json','Prefer':'return=minimal'};
+const HS = {'apikey':SBK,'Authorization':'Bearer '+SBK}; // para Storage (sin Content-Type)
+
+const AU='admin', AP='iphonixar2025', SK='iphxar_auth';
+
+/* ══ AUTH ══ */
+function doLogin(){
+  const u=document.getElementById('lu').value.trim(),p=document.getElementById('lp').value;
+  if(u===AU&&p===AP){sessionStorage.setItem(SK,'1');mostrarApp();}
+  else{document.getElementById('lerr').style.display='block';document.getElementById('lp').value='';}
+}
+function mostrarApp(){
+  document.getElementById('lscr').style.display='none';
+  document.getElementById('app').style.display='block';
+  init();
+}
+function logout(){
+  sessionStorage.removeItem(SK);
+  document.getElementById('app').style.display='none';
+  document.getElementById('lscr').style.display='flex';
+  document.getElementById('lp').value='';
+  document.getElementById('lerr').style.display='none';
+}
+document.getElementById('lu').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('lp').focus();});
+if(sessionStorage.getItem(SK)==='1') mostrarApp();
+
+/* ══ SIDEBAR ══ */
+function toggleSB(){
+  const s=document.getElementById('sb'),o=document.getElementById('sbov'),b=document.getElementById('mtog');
+  const op=s.classList.toggle('open');o.classList.toggle('show',op);b.classList.toggle('open',op);
+}
+function closeSB(){
+  document.getElementById('sb').classList.remove('open');
+  document.getElementById('sbov').classList.remove('show');
+  document.getElementById('mtog').classList.remove('open');
+}
+function goPage(name,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(b=>b.classList.remove('active'));
+  const pg=document.getElementById('page-'+name);if(pg)pg.classList.add('active');
+  if(btn)btn.classList.add('active');
+  closeSB();
+}
+
+/* ══ TOAST ══ */
+let tT;
+function showToast(msg,type='ok'){
+  const t=document.getElementById('toast');
+  t.textContent=(type==='ok'?'✓ ':type==='er'?'✕ ':'ℹ ')+msg;
+  t.className='show '+type;
+  clearTimeout(tT);tT=setTimeout(()=>t.className='',3500);
+}
+
+/* ══ CONFIRM ══ */
+let cfCb=null;
+function cfShow(title,msg,cb){
+  document.getElementById('cftit').textContent=title;
+  document.getElementById('cfmsg').textContent=msg;
+  cfCb=cb;document.getElementById('cfov').classList.add('show');
+}
+function cfClose(){document.getElementById('cfov').classList.remove('show');cfCb=null;}
+document.getElementById('cfok').onclick=()=>{cfClose();if(cfCb)cfCb();};
+
+/* ══ SETUP ══ */
+function mostrarSetup(){goPage('setup',document.querySelector('[data-page=setup]'));}
+function copiarSQL(id,btn){
+  const txt=document.getElementById(id).textContent;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const orig=btn.textContent;btn.textContent='✓ Copiado!';
+    setTimeout(()=>btn.textContent=orig,2000);
+  });
+}
+
+/* ══ DATOS ══ */
+let allP=[],filtP=[];
+
+async function cargarProds(){
+  ldr('pb',7);ldr('lb',5);
+  try{
+    const r=await fetch(SBU+'/rest/v1/productos?select=*&order=categoria,subcategoria,nombre',{headers:H});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    allP=await r.json();
+    if(!Array.isArray(allP))allP=[];
+    filtTbl();updStats();updLow();
+    document.getElementById('tbcnt').textContent=allP.length+' productos';
+  }catch(e){
+    showToast('Error al cargar: '+e.message,'er');
+    ['pb','lb'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=`<tr class="ldr"><td colspan="7" style="color:var(--rd)">Error de conexión</td></tr>`;});
+  }
+}
+function updStats(){
+  document.getElementById('st-tot').textContent=allP.length;
+  document.getElementById('st-ok').textContent=allP.filter(p=>p.stock>0).length;
+  document.getElementById('st-no').textContent=allP.filter(p=>p.stock===0).length;
+  document.getElementById('st-lw').textContent=allP.filter(p=>p.stock>0&&p.stock<=2).length;
+}
+function updLow(){
+  const bajos=allP.filter(p=>p.stock<=2),tb=document.getElementById('lb');
+  if(!bajos.length){tb.innerHTML=`<tr class="ldr"><td colspan="5">✅ Todo el stock está en orden</td></tr>`;return;}
+  tb.innerHTML=bajos.map(p=>`<tr>
+    <td class="tn">${p.nombre}<small>${p.modelo_iphone||''}</small></td>
+    <td>${catBdg(p)}</td>
+    <td class="${p.stock===0?'sno':'slw'}">${p.stock===0?'Sin stock':p.stock+' ud.'}</td>
+    <td>$${p.precio_usd}</td>
+    <td><button class="ab as" onclick="abrirStock('${p.id}','${esc(p.nombre)}',${p.stock})">Actualizar</button></td>
+  </tr>`).join('');
+}
+function filtTbl(){
+  const q=(document.getElementById('fsrch')?.value||'').toLowerCase();
+  const cat=document.getElementById('fcat')?.value||'';
+  filtP=allP.filter(p=>{
+    const mq=!q||p.nombre.toLowerCase().includes(q)||(p.modelo_iphone||'').toLowerCase().includes(q);
+    const mc=!cat||p.categoria===cat;
+    return mq&&mc;
+  });
+  renderTbl();
+}
+function renderTbl(){
+  const tb=document.getElementById('pb');
+  if(!filtP.length){tb.innerHTML=`<tr class="ldr"><td colspan="7">No se encontraron productos</td></tr>`;return;}
+  tb.innerHTML=filtP.map(p=>{
+    const fotos=nFtos(p.fotos);
+    const fH=fotos.length
+      ?`<div class="tft">${fotos.slice(0,3).map(f=>`<img src="${f}" class="ftmb" referrerpolicy="no-referrer" onerror="this.style.display='none'"/>`).join('')}${fotos.length>3?`<span class="fct">+${fotos.length-3}</span>`:''}</div>`
+      :'<span style="color:var(--cr2);font-size:.7rem">Sin fotos</span>';
+    const bat=p.bateria?`<span style="font-weight:600;color:${p.bateria>=85?'var(--gr)':p.bateria>=70?'var(--yw)':'var(--rd)'}">${p.bateria}%</span>`:'—';
+    const sc=p.stock===0?'sno':p.stock<=2?'slw':'sok';
+    return`<tr>
+      <td class="tn">${p.nombre}<small>${p.modelo_iphone||''}</small></td>
+      <td>${catBdg(p)}</td><td style="font-weight:700">$${p.precio_usd}</td>
+      <td>${bat}</td><td><span class="${sc}">${p.stock}</span></td>
+      <td>${fH}</td>
+      <td><div class="tac">
+        <button class="ab ae" onclick="abrirEdit('${p.id}')">Editar</button>
+        <button class="ab as" onclick="abrirStock('${p.id}','${esc(p.nombre)}',${p.stock})">Stock</button>
+        <button class="ab ad" onclick="eliminar('${p.id}','${esc(p.nombre)}')">Borrar</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+/* Normalizar fotos: acepta URLs http/https Y data:image (base64) */
+function nFtos(raw){
+  if(!raw)return[];
+  const ok=u=>typeof u==='string'&&(u.startsWith('http')||u.startsWith('data:image')||u.startsWith('https'));
+  if(Array.isArray(raw))return raw.filter(ok);
+  if(typeof raw==='string'){
+    const s=raw.trim();
+    if(s.startsWith('[')){try{const a=JSON.parse(s);return Array.isArray(a)?a.filter(ok):[]}catch{return[];}}
+    if(ok(s))return[s];
+  }
+  return[];
+}
+function catBdg(p){
+  if(p.categoria==='Equipos'&&p.subcategoria==='Sellados')return'<span class="bdg b-s">Sellado</span>';
+  if(p.categoria==='Equipos'&&p.subcategoria==='Usados')  return'<span class="bdg b-u">Usado</span>';
+  if(p.categoria==='Fundas')  return'<span class="bdg b-f">Funda</span>';
+  if(p.categoria==='Cargadores')return'<span class="bdg b-c">Cargador</span>';
+  return'<span class="bdg">'+(p.categoria||'')+'</span>';
+}
+function esc(s){return(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');}
+function ldr(id,cols){const el=document.getElementById(id);if(el)el.innerHTML=`<tr class="ldr"><td colspan="${cols}"><div class="spin"></div></td></tr>`;}
+
+/* ══ UPLOAD FOTOS — Supabase Storage (permanente) ══
+   Si el bucket no está creado, cae en fallback base64 comprimido.
+   Las URLs de Storage no expiran nunca.
+*/
+async function subirAStorage(file){
+  const ext = file.name.split('.').pop().toLowerCase().replace('jpg','jpeg') || 'jpeg';
+  const nombre = `prod_${Date.now()}_${Math.random().toString(36).slice(2,7)}.${ext}`;
+  const r = await fetch(
+    `${SBU}/storage/v1/object/${BUCKET}/${nombre}`,
+    {
+      method: 'POST',
+      headers: {
+        'apikey': SBK,
+        'Authorization': 'Bearer ' + SBK,
+        'Content-Type': file.type || 'image/jpeg',
+        'x-upsert': 'true'
+      },
+      body: file
+    }
+  );
+  if(!r.ok){
+    const err = await r.json().catch(()=>({}));
+    throw new Error(err.message || err.error || 'Storage HTTP '+r.status);
+  }
+  // URL pública permanente
+  return `${SBU}/storage/v1/object/public/${BUCKET}/${nombre}`;
+}
+
+/* Compresión Canvas como fallback si Storage no está configurado */
+function comprimirCanvas(file, maxPx=800, q=0.78){
+  return new Promise((res,rej)=>{
+    const reader=new FileReader();
+    reader.onerror=()=>rej(new Error('Error leyendo archivo'));
+    reader.onload=ev=>{
+      const img=new Image();
+      img.onerror=()=>rej(new Error('Imagen inválida'));
+      img.onload=()=>{
+        let w=img.width,h=img.height;
+        if(w>maxPx||h>maxPx){
+          if(w>=h){h=Math.round(h*maxPx/w);w=maxPx;}
+          else{w=Math.round(w*maxPx/h);h=maxPx;}
+        }
+        const c=document.createElement('canvas');c.width=w;c.height=h;
+        const ctx=c.getContext('2d');
+        ctx.fillStyle='#000';ctx.fillRect(0,0,w,h);
+        ctx.drawImage(img,0,0,w,h);
+        res(c.toDataURL('image/jpeg',q));
+      };
+      img.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+let storageDisponible = null; // null=no verificado, true=disponible, false=no
+
+async function verificarStorage(){
+  if(storageDisponible !== null) return storageDisponible;
+  try{
+    // Intentar listar el bucket — si existe y es público, devuelve 200
+    const r=await fetch(`${SBU}/storage/v1/bucket/${BUCKET}`,{headers:HS});
+    storageDisponible = r.ok || r.status===200;
+  }catch{ storageDisponible=false; }
+  return storageDisponible;
+}
+
+async function onFileSelect(files){
+  if(!files||!files.length)return;
+  const ust=document.getElementById('ustatus'),fill=document.getElementById('pfill'),lbl=document.getElementById('plbl');
+  ust.classList.add('show');
+  const useStorage = await verificarStorage();
+  let ok=0,fail=0;
+
+  for(let i=0;i<files.length;i++){
+    const f=files[i];
+    lbl.textContent=`${useStorage?'Subiendo':'Procesando'} ${i+1}/${files.length}: ${f.name}`;
+    fill.style.width=Math.round((i/files.length)*100)+'%';
+    try{
+      if(!f.type.startsWith('image/')){showToast(`${f.name}: no es imagen`,'inf');fail++;continue;}
+      if(f.size>15*1024*1024){showToast(`${f.name}: supera 15MB`,'inf');fail++;continue;}
+      let url;
+      if(useStorage){
+        url = await subirAStorage(f);
+      } else {
+        // Fallback: base64 comprimido pequeño
+        url = await comprimirCanvas(f, 600, 0.70);
+        showToast('Storage no configurado. Usá el tab Configuración para habilitarlo.','inf');
+      }
+      fotosActuales.push(url);ok++;
+      renderFotos();
+    }catch(e){
+      console.error('Upload error:',e);
+      showToast(`Error: ${e.message}`,'er');
+      // En fallo de Storage, intentar fallback base64
+      if(useStorage){
+        try{
+          const url=await comprimirCanvas(f,600,0.70);
+          fotosActuales.push(url);ok++;
+          renderFotos();
+          showToast('Guardado como base64 (Storage falló). Configurá el bucket para mejor calidad.','inf');
+        }catch{}
+      } else { fail++; }
+    }
+  }
+
+  fill.style.width='100%';
+  lbl.textContent=`${ok} foto${ok!==1?'s':''} lista${ok!==1?'s':''}${fail?` · ${fail} con error`:''}`;
+  setTimeout(()=>{ust.classList.remove('show');fill.style.width='0%';},2500);
+  document.getElementById('finput').value='';
+}
+
+// Drag & drop
+const ua=document.getElementById('uparea');
+ua.addEventListener('dragover',e=>{e.preventDefault();ua.classList.add('drag');});
+ua.addEventListener('dragleave',()=>ua.classList.remove('drag'));
+ua.addEventListener('drop',e=>{e.preventDefault();ua.classList.remove('drag');onFileSelect(e.dataTransfer.files);});
+
+function addUrl(){
+  const inp=document.getElementById('furl'),url=inp.value.trim();
+  if(!url)return;
+  if(!url.startsWith('http')){showToast('La URL debe empezar con http','er');return;}
+  fotosActuales.push(url);inp.value='';renderFotos();
+}
+function renderFotos(){
+  document.getElementById('fgrid').innerHTML=
+    fotosActuales.map((u,i)=>
+      `<div class="foto-item">
+        <img src="${u}" referrerpolicy="no-referrer" onerror="this.style.display='none'"/>
+        <button class="foto-del" onclick="delFoto(${i})">✕</button>
+      </div>`
+    ).join('')+
+    `<button class="foto-add-btn" type="button" onclick="document.getElementById('finput').click()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span>Agregar</span>
+    </button>`;
+}
+function delFoto(i){fotosActuales.splice(i,1);renderFotos();}
+
+/* ══ MODAL PRODUCTO ══ */
+let editId=null,fotosActuales=[];
+
+function abrirNuevo(){
+  editId=null;fotosActuales=[];
+  document.getElementById('mttl').textContent='Nuevo producto';
+  document.getElementById('msave').textContent='Crear producto';
+  limpForm();renderFotos();
+  document.getElementById('pmov').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function abrirEdit(id){
+  const p=allP.find(x=>String(x.id)===String(id));if(!p)return;
+  editId=id;fotosActuales=nFtos(p.fotos);
+  document.getElementById('mttl').textContent='Editar producto';
+  document.getElementById('msave').textContent='Guardar cambios';
+  document.getElementById('fn').value=p.nombre||'';
+  document.getElementById('fd2').value=p.descripcion||'';
+  document.getElementById('fc').value=p.categoria||'';
+  document.getElementById('fsub').value=p.subcategoria||'';
+  document.getElementById('fmod').value=p.modelo_iphone||'';
+  document.getElementById('fp').value=p.precio_usd||'';
+  document.getElementById('fst').value=p.stock??0;
+  if(p.bateria){document.getElementById('fbat').value=p.bateria;document.getElementById('fbatv').textContent=p.bateria+'%';}
+  updSub();renderFotos();
+  document.getElementById('pmov').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function cerrarMod(){document.getElementById('pmov').classList.remove('show');document.body.style.overflow='';editId=null;}
+function limpForm(){
+  ['fn','fd2','fp','fst'].forEach(id=>document.getElementById(id).value='');
+  ['fc','fsub','fmod'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('fbat').value=85;document.getElementById('fbatv').textContent='85%';updSub();
+}
+function updSub(){
+  const cat=document.getElementById('fc').value,sub=document.getElementById('fsub').value,eq=cat==='Equipos';
+  document.getElementById('fsubw').style.display=eq?'':'none';
+  document.getElementById('fmodw').style.display=(eq||cat==='Fundas')?'':'none';
+  document.getElementById('fbatw').style.display=(eq&&sub==='Usados')?'':'none';
+}
+async function guardarProd(){
+  const nombre=document.getElementById('fn').value.trim();
+  const cat=document.getElementById('fc').value;
+  const precio=parseFloat(document.getElementById('fp').value);
+  const stock=parseInt(document.getElementById('fst').value);
+  if(!nombre){showToast('El nombre es obligatorio','er');return;}
+  if(!cat){showToast('Seleccioná una categoría','er');return;}
+  if(isNaN(precio)){showToast('El precio es obligatorio','er');return;}
+  if(isNaN(stock)){showToast('El stock es obligatorio','er');return;}
+  const sub=document.getElementById('fsub').value||null;
+  const mod=document.getElementById('fmod').value||null;
+  const desc=document.getElementById('fd2').value.trim()||null;
+  const bat=(cat==='Equipos'&&sub==='Usados')?parseInt(document.getElementById('fbat').value):null;
+  const payload={nombre,descripcion:desc,categoria:cat,subcategoria:sub,modelo_iphone:mod,precio_usd:precio,stock,bateria:bat,fotos:fotosActuales.length?fotosActuales:null};
+  const btn=document.getElementById('msave');btn.disabled=true;btn.textContent='Guardando…';
+  try{
+    let r;
+    if(editId){r=await fetch(`${SBU}/rest/v1/productos?id=eq.${editId}`,{method:'PATCH',headers:H,body:JSON.stringify(payload)});}
+    else{r=await fetch(`${SBU}/rest/v1/productos`,{method:'POST',headers:H,body:JSON.stringify(payload)});}
+    if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.message||'HTTP '+r.status);}
+    showToast(editId?'Producto actualizado ✓':'Producto creado ✓','ok');
+    cerrarMod();await cargarProds();
+  }catch(e){showToast('Error: '+e.message,'er');}
+  finally{btn.disabled=false;btn.textContent=editId?'Guardar cambios':'Crear producto';}
+}
+
+/* ══ STOCK ══ */
+let stkId=null,stkVal=0;
+function abrirStock(id,nombre,v){stkId=String(id);stkVal=parseInt(v)||0;document.getElementById('spnm').textContent=nombre;document.getElementById('skv').textContent=stkVal;document.getElementById('smov').classList.add('show');}
+function cerrarStock(){document.getElementById('smov').classList.remove('show');stkId=null;}
+function chgStk(d){stkVal=Math.max(0,stkVal+d);document.getElementById('skv').textContent=stkVal;}
+async function saveStk(){
+  if(!stkId)return;
+  try{
+    const r=await fetch(`${SBU}/rest/v1/productos?id=eq.${stkId}`,{method:'PATCH',headers:H,body:JSON.stringify({stock:stkVal})});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    showToast('Stock actualizado: '+stkVal+' ud.','ok');cerrarStock();await cargarProds();
+  }catch(e){showToast('Error: '+e.message,'er');}
+}
+
+/* ══ ELIMINAR ══
+   Intenta RPC borrar_producto (SECURITY DEFINER, bypasa RLS).
+   Si la función no existe, muestra instrucciones en pestaña Setup.
+   Como fallback inmediato: pone stock=0 para ocultar de la tienda.
+*/
+function eliminar(id,nombre){
+  cfShow('Eliminar producto',`¿Eliminar "${nombre}"? Esta acción no se puede deshacer.`,async()=>{
+    // Intento 1: RPC con SECURITY DEFINER
+    try{
+      const r=await fetch(`${SBU}/rest/v1/rpc/borrar_producto`,{
+        method:'POST',
+        headers:H,
+        body:JSON.stringify({pid:id})
+      });
+      if(r.status===200||r.status===204){
+        showToast('Producto eliminado ✓','ok');
+        await cargarProds();
+        return;
+      }
+      const errBody=await r.json().catch(()=>({}));
+      const msg=errBody.message||errBody.error||'HTTP '+r.status;
+      throw new Error(msg);
+    }catch(e){
+      const msg=e.message||'';
+      // Si la función RPC no existe: mostrar Setup
+      if(msg.includes('does not exist')||msg.includes('Could not find')||msg.includes('404')){
+        // Fallback: stock=0 para ocultar
+        try{
+          await fetch(`${SBU}/rest/v1/productos?id=eq.${encodeURIComponent(id)}`,{
+            method:'PATCH',headers:H,body:JSON.stringify({stock:0})
+          });
+          showToast('Ocultado de la tienda. Ejecutá el SQL en Configuración para borrar definitivamente.','inf');
+          await cargarProds();
+        }catch{}
+        // Mostrar tab setup
+        document.getElementById('cfg-banner').classList.add('show');
+        goPage('setup',document.querySelector('[data-page=setup]'));
+        return;
+      }
+      // Otro error
+      showToast('Error: '+msg,'er');
+      // Fallback de todas formas
+      try{
+        await fetch(`${SBU}/rest/v1/productos?id=eq.${encodeURIComponent(id)}`,{
+          method:'PATCH',headers:H,body:JSON.stringify({stock:0})
+        });
+        showToast('Producto ocultado (stock=0). Ejecutá el SQL para borrar definitivamente.','inf');
+        await cargarProds();
+      }catch{}
+    }
+  });
+}
+
+/* ══ INIT ══ */
+async function init(){
+  await cargarProds();
+  // Verificar storage en background
+  verificarStorage().then(ok=>{
+    if(!ok) console.info('Storage bucket no configurado. Usá el tab Configuración.');
+  });
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){cerrarMod();cerrarStock();cfClose();}});
+</script>
+</body>
+</html>
